@@ -1,0 +1,26 @@
+{
+  "name": "pickbros-app",
+  "private": true,
+  "description": "Aplicación web y API de PickBros",
+  "scripts": {
+    "dev": "pnpm --parallel --filter web --filter api dev",
+    "dev:web": "pnpm --filter web dev",
+    "dev:api": "pnpm --filter api dev",
+    "build": "pnpm --filter @pickbros/types build && pnpm --filter web --filter api build",
+    "lint": "pnpm --filter web --filter api lint",
+    "test": "pnpm --filter web --filter api test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.15.0",
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild", "sharp", "unrs-resolver", "@prisma/client", "@prisma/engines", "prisma"]
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2"
+  }
+}

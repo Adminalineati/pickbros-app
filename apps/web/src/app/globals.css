@@ -1,0 +1,47 @@
+@import 'tailwindcss';
+@import '@pickbros/ui/tokens.css';
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-border: var(--border);
+  --color-primary-orange: var(--primary-orange);
+  --color-primary-blue: var(--primary-blue);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-oswald), ui-sans-serif, system-ui, sans-serif;
+  --shadow-glow-orange: 0 0 40px color-mix(in srgb, var(--primary-orange) 28%, transparent);
+  --shadow-glow-blue: 0 0 36px color-mix(in srgb, var(--primary-blue) 22%, transparent);
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  background: var(--background);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--primary-orange) 40%, transparent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary-blue);
+  outline-offset: 3px;
+}
+
+.pb-app-bg {
+  background-color: var(--background);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 10% -10%, color-mix(in srgb, var(--primary-blue) 18%, transparent), transparent),
+    radial-gradient(ellipse 60% 40% at 100% 0%, color-mix(in srgb, var(--primary-orange) 14%, transparent), transparent),
+    linear-gradient(180deg, #070b16 0%, #0a1224 100%);
+}

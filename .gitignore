@@ -1,0 +1,23 @@
+node_modules/
+.pnpm-store/
+dist/
+coverage/
+.turbo/
+
+# Next.js
+.next/
+out/
+
+# Nest / env
+.env
+.env.local
+.env.*.local
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Logs y artefactos
+*.log
+*.tsbuildinfo

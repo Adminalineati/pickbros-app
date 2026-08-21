@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: pickbros
+      POSTGRES_USER: pickbros
+      POSTGRES_PASSWORD: pickbros
+    ports:
+      - "5432:5432"
+    volumes:
+      - pickbros_pg:/var/lib/postgresql/data
+
+volumes:
+  pickbros_pg:

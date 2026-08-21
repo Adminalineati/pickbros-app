@@ -1,0 +1,241 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum WalletCurrency {
+  PICKCOINS
+  PICKETS
+}
+
+enum LedgerDirection {
+  CREDIT
+  DEBIT
+}
+
+enum League {
+  MLB
+  NBA
+  NFL
+  CHAMPIONS
+}
+
+enum EventStatus {
+  SCHEDULED
+  LIVE
+  FINAL
+  CANCELED
+}
+
+enum PickSelection {
+  HOME
+  AWAY
+}
+
+enum PickResult {
+  PENDING
+  WIN
+  LOSS
+  VOID
+}
+
+enum ProductCategory {
+  FAN_SHOP
+  REWARDS
+  EXCLUSIVE
+  MERCH
+}
+
+enum RedemptionStatus {
+  PENDING
+  FULFILLED
+  CANCELED
+}
+
+model Rank {
+  id       String @id @default(cuid())
+  slug     String @unique
+  name     String
+  minLevel Int    @map("min_level")
+  users    User[]
+
+  @@map("ranks")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  username     String    @unique
+  displayName  String    @map("display_name")
+  rankId       String    @map("rank_id")
+  rank         Rank      @relation(fields: [rankId], references: [id])
+  level        Int       @default(1)
+  xp           Int       @default(0)
+  streakDays   Int       @default(0) @map("streak_days")
+  lastActiveAt DateTime? @map("last_active_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  wallet      Wallet?
+  ledger      WalletLedger[]
+  picks       Pick[]
+  missions    UserMission[]
+  redemptions Redemption[]
+  rankings    WeeklyRanking[]
+
+  @@map("users")
+}
+
+model Wallet {
+  id        String   @id @default(cuid())
+  userId    String   @unique @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pickCoins Int      @default(0) @map("pick_coins")
+  pickets   Int      @default(0)
+  version   Int      @default(0)
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("wallets")
+}
+
+// Movimientos append-only. El saldo en wallets se actualiza en la misma transacción.
+model WalletLedger {
+  id        String           @id @default(cuid())
+  userId    String           @map("user_id")
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currency  WalletCurrency
+  direction LedgerDirection
+  amount    Int
+  reason    String
+  refType   String?          @map("ref_type")
+  refId     String?          @map("ref_id")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  @@index([userId, createdAt])
+  @@index([refType, refId])
+  @@map("wallet_ledger")
+}
+
+model SportEvent {
+  id         String      @id @default(cuid())
+  league     League
+  homeName   String      @map("home_name")
+  homeCode   String      @map("home_code")
+  awayName   String      @map("away_name")
+  awayCode   String      @map("away_code")
+  startsAt   DateTime    @map("starts_at")
+  status     EventStatus @default(SCHEDULED)
+  featured   Boolean     @default(false)
+  challenges DailyChallenge[]
+  picks      Pick[]
+
+  @@index([startsAt])
+  @@index([league, startsAt])
+  @@index([featured, startsAt])
+  @@map("sport_events")
+}
+
+model DailyChallenge {
+  id             String     @id @default(cuid())
+  eventId        String     @map("event_id")
+  event          SportEvent @relation(fields: [eventId], references: [id])
+  challengeDate  DateTime   @db.Date @map("challenge_date")
+  prizePickCoins Int        @map("prize_pick_coins")
+  active         Boolean    @default(true)
+  picks          Pick[]
+
+  @@unique([challengeDate])
+  @@map("daily_challenges")
+}
+
+model Pick {
+  id          String          @id @default(cuid())
+  userId      String          @map("user_id")
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventId     String          @map("event_id")
+  event       SportEvent      @relation(fields: [eventId], references: [id])
+  challengeId String?         @map("challenge_id")
+  challenge   DailyChallenge? @relation(fields: [challengeId], references: [id])
+  selection   PickSelection
+  result      PickResult      @default(PENDING)
+  points      Int             @default(0)
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  @@unique([userId, eventId])
+  @@index([userId, createdAt])
+  @@index([eventId, result])
+  @@map("picks")
+}
+
+model Mission {
+  id          String        @id @default(cuid())
+  slug        String        @unique
+  title       String
+  description String
+  target      Int
+  active      Boolean       @default(true)
+  progress    UserMission[]
+
+  @@map("missions")
+}
+
+model UserMission {
+  id          String    @id @default(cuid())
+  userId      String    @map("user_id")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  missionId   String    @map("mission_id")
+  mission     Mission   @relation(fields: [missionId], references: [id])
+  periodDate  DateTime  @db.Date @map("period_date")
+  progress    Int       @default(0)
+  completedAt DateTime? @map("completed_at")
+
+  @@unique([userId, missionId, periodDate])
+  @@index([userId, periodDate])
+  @@map("user_missions")
+}
+
+// Snapshot semanal. El dashboard no suma picks en caliente.
+model WeeklyRanking {
+  id        String   @id @default(cuid())
+  weekStart DateTime @db.Date @map("week_start")
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  points    Int
+  position  Int
+
+  @@unique([weekStart, userId])
+  @@index([weekStart, position])
+  @@map("weekly_rankings")
+}
+
+model Product {
+  id             String          @id @default(cuid())
+  slug           String          @unique
+  name           String
+  description    String
+  category       ProductCategory
+  pricePickCoins Int?            @map("price_pick_coins")
+  pricePickets   Int?            @map("price_pickets")
+  featured       Boolean         @default(false)
+  active         Boolean         @default(true)
+  redemptions    Redemption[]
+
+  @@map("products")
+}
+
+model Redemption {
+  id        String           @id @default(cuid())
+  userId    String           @map("user_id")
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String           @map("product_id")
+  product   Product          @relation(fields: [productId], references: [id])
+  status    RedemptionStatus @default(PENDING)
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  @@index([userId, createdAt])
+  @@map("redemptions")
+}

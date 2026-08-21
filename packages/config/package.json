@@ -1,0 +1,6 @@
+{
+  "name": "@pickbros/config",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Configuración compartida de TypeScript y calidad para PickBros"
+}
