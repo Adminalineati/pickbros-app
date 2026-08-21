@@ -15,6 +15,18 @@ pnpm dev
 - Web: http://localhost:3000
 - API: http://localhost:3001/api/v1/health
 
+## Preview para el equipo
+
+La demo visual se publica en GitHub Pages al hacer push a `main`:
+
+https://Adminalineati.github.io/pickbros-app/
+
+Es el Dashboard y la PickStore con datos de ejemplo. No hace falta instalar nada.
+
+La primera vez hay que activar Pages en el repo: **Settings → Pages → Source: GitHub Actions**.
+
+Si el repo es privado y Pages no deja publicar, importar este mismo repo en [Vercel](https://vercel.com/new). Queda un link tipo `https://pickbros-app.vercel.app`.
+
 Otros comandos:
 
 ```bash
