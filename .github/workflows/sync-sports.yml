@@ -1,0 +1,60 @@
+name: Actualizar calendarios deportivos
+
+on:
+  schedule:
+    - cron: '17 0,6,12,18 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: sports-sync-dev
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: us-east-1
+  API_SPORTS_TIMEZONE: America/Mexico_City
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_APPLICATION_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: pickbros-sports-sync
+
+      - name: Descargar snapshot anterior
+        run: |
+          aws s3 cp \
+            "s3://${{ vars.FRONTEND_BUCKET }}/data/sports.json" \
+            /tmp/sports-previous.json || true
+
+      - name: Consultar API-Sports
+        env:
+          API_SPORTS_KEY: ${{ secrets.API_SPORTS_KEY }}
+        run: |
+          node apps/web/scripts/sync-sports.mjs \
+            --output /tmp/sports.json \
+            --previous /tmp/sports-previous.json
+
+      - name: Publicar calendario normalizado
+        run: |
+          aws s3 cp /tmp/sports.json \
+            "s3://${{ vars.FRONTEND_BUCKET }}/data/sports.json" \
+            --content-type application/json \
+            --cache-control "public,max-age=300,must-revalidate"
+
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --paths "/data/sports.json"

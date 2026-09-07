@@ -1,5 +1,6 @@
 export const navPrincipal = [
   { href: '/', etiqueta: 'Inicio', icono: 'home' },
+  { href: '/deportes', etiqueta: 'Deportes', icono: 'calendar-days' },
   { href: '/picks', etiqueta: 'Picks', icono: 'target' },
   { href: '/analisis', etiqueta: 'Análisis', icono: 'line-chart' },
   { href: '/retos', etiqueta: 'Retos', icono: 'swords' },
@@ -13,8 +14,8 @@ export const navPrincipal = [
 
 export const navMovil = [
   { href: '/', etiqueta: 'Inicio', icono: 'home' },
-  { href: '/picks', etiqueta: 'Picks', icono: 'target' },
+  { href: '/deportes', etiqueta: 'Deportes', icono: 'calendar-days' },
   { href: '/picks/nuevo', etiqueta: 'Nuevo Pick', icono: 'plus' },
   { href: '/analisis', etiqueta: 'Análisis', icono: 'line-chart' },
-  { href: '/comunidad', etiqueta: 'Comunidad', icono: 'users' },
+  { href: '/picks', etiqueta: 'Picks', icono: 'target' },
 ] as const;

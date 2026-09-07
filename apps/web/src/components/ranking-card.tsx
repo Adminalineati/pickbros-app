@@ -7,17 +7,24 @@ export function RankingCard({ ranking }: { ranking: PosicionRanking[] }) {
   return (
     <section aria-labelledby="ranking-semanal">
       <SectionHeader id="ranking-semanal" kicker="Competencia" title="Top PickBros de la semana" />
-      <Card className="space-y-2">
+      <Card className="space-y-2 border-primary-blue/30">
         {ranking.map((fila) => (
           <div
             key={fila.alias}
             className={cn(
-              'flex items-center justify-between rounded-xl px-3 py-2.5',
+              'flex items-center justify-between rounded-xl border border-transparent bg-background/25 px-3 py-2.5',
               fila.esUsuarioActual && 'border border-primary-orange/40 bg-primary-orange/10',
             )}
           >
             <div className="flex items-center gap-3">
-              <span className="grid h-8 w-8 place-items-center rounded-full bg-background font-display text-sm text-primary-blue">
+              <span
+                className={cn(
+                  'grid h-8 w-8 place-items-center rounded-full border bg-background font-display text-sm text-primary-blue',
+                  fila.puesto === 1 &&
+                    'border-primary-orange bg-primary-orange text-white shadow-[0_0_14px_color-mix(in_srgb,var(--primary-orange)_45%,transparent)]',
+                  fila.puesto !== 1 && 'border-primary-blue/30',
+                )}
+              >
                 {fila.puesto}
               </span>
               <div>

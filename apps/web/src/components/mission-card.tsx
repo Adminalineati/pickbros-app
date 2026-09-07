@@ -11,7 +11,10 @@ export function MissionCard({ misiones }: { misiones: MisionDiaria[] }) {
         {misiones.map((mision) => {
           const porcentaje = Math.round((mision.progreso / mision.meta) * 100);
           return (
-            <Card key={mision.id} className="bg-surface-elevated/70">
+            <Card
+              key={mision.id}
+              className="border-l-2 border-l-primary-orange/70"
+            >
               <div className="mb-2 flex items-center justify-between gap-3">
                 <p className="font-semibold">{mision.titulo}</p>
                 <p className="text-xs text-text-secondary">

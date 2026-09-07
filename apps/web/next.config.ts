@@ -7,6 +7,12 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
   images: {
     unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'media.api-sports.io',
+      },
+    ],
   },
   transpilePackages: ['@pickbros/types', '@pickbros/ui'],
   ...(basePath

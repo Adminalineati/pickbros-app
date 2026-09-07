@@ -31,6 +31,8 @@ jobs:
         run: pnpm --filter @pickbros/types build && pnpm --filter web build
         env:
           NEXT_PUBLIC_BASE_PATH: /pickbros-app
+          NEXT_PUBLIC_DEMO_MODE: "true"
+          NEXT_PUBLIC_LOCAL_AUTH_REQUIRED: "false"
       - run: touch apps/web/out/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:

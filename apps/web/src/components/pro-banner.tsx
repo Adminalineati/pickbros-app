@@ -5,9 +5,10 @@ export function ProBanner() {
   return (
     <section
       aria-label="PickBros Pro"
-      className="overflow-hidden rounded-2xl border border-primary-orange/30 bg-gradient-to-r from-[#2a1408] via-surface to-[#0b1c33] p-5 md:flex md:items-center md:justify-between md:p-7"
+      className="relative overflow-hidden rounded-2xl border border-primary-orange/50 bg-gradient-to-r from-primary-orange/20 via-surface to-primary-blue/15 p-5 shadow-[0_0_30px_color-mix(in_srgb,var(--primary-orange)_14%,transparent)] md:flex md:items-center md:justify-between md:p-7"
     >
-      <div>
+      <div className="pointer-events-none absolute -left-12 top-1/2 h-32 w-32 -translate-y-1/2 rounded-full bg-primary-orange/15 blur-3xl" />
+      <div className="relative">
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-orange">
           PickBros Pro
         </p>
@@ -18,7 +19,7 @@ export function ProBanner() {
           Más picks, más análisis, más ganancias. El plan real se conecta más adelante.
         </p>
       </div>
-      <Button asChild className="mt-4 md:mt-0" variant="default">
+      <Button asChild className="relative mt-4 md:mt-0" variant="default">
         <Link href="/ayuda">Ver planes</Link>
       </Button>
     </section>

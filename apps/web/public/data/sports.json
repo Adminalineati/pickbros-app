@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "proveedor": "demo",
+  "actualizadoEn": "2026-09-07T04:00:00.000Z",
+  "zonaHoraria": "America/Mexico_City",
+  "ventana": {
+    "desde": "2026-09-05",
+    "hasta": "2026-09-21"
+  },
+  "eventos": [],
+  "fuentes": [
+    { "liga": "MLB", "ok": false, "eventos": 0, "error": "Pendiente de sincronizar API-Sports" },
+    { "liga": "NBA", "ok": false, "eventos": 0, "error": "Pendiente de sincronizar API-Sports" },
+    { "liga": "NFL", "ok": false, "eventos": 0, "error": "Pendiente de sincronizar API-Sports" },
+    { "liga": "Champions", "ok": false, "eventos": 0, "error": "Pendiente de sincronizar API-Sports" }
+  ]
+}

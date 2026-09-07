@@ -15,7 +15,12 @@ export function SectionHeader({
   id?: string;
 }) {
   return (
-    <div className={cn('mb-4 flex items-end justify-between gap-3', className)}>
+    <div
+      className={cn(
+        'mb-4 flex items-end justify-between gap-3 border-b border-primary-blue/15 pb-2',
+        className,
+      )}
+    >
       <div>
         {kicker ? (
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-blue">

@@ -63,8 +63,9 @@ export function StoreHero({ data }: { data: TiendaRespuesta }) {
         </div>
       </header>
 
-      <Card className="relative overflow-hidden border-primary-orange/30 bg-gradient-to-br from-[#2a150a] to-surface p-5 md:flex md:items-center md:justify-between md:p-8">
-        <div className="max-w-xl">
+      <Card className="relative overflow-hidden border-primary-orange/50 bg-gradient-to-br from-primary-orange/20 via-surface to-primary-blue/15 p-5 shadow-[0_0_34px_color-mix(in_srgb,var(--primary-orange)_14%,transparent)] md:flex md:items-center md:justify-between md:p-8">
+        <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary-blue/15 blur-3xl" />
+        <div className="relative max-w-xl">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-orange">
             {data.productoDestacado.etiqueta}
           </p>
@@ -79,7 +80,7 @@ export function StoreHero({ data }: { data: TiendaRespuesta }) {
           </p>
         </div>
         <div
-          className="mt-6 grid h-36 w-full place-items-center rounded-3xl bg-gradient-to-br from-primary-orange/40 to-primary-blue/30 font-display text-5xl md:mt-0 md:h-44 md:w-56"
+          className="relative mt-6 grid h-36 w-full -skew-x-3 place-items-center rounded-3xl border border-primary-orange/50 bg-gradient-to-br from-primary-orange via-primary-orange/75 to-primary-blue/50 font-display text-5xl text-white shadow-[0_0_38px_color-mix(in_srgb,var(--primary-orange)_28%,transparent)] md:mt-0 md:h-44 md:w-56"
           aria-hidden="true"
         >
           PB
@@ -93,7 +94,7 @@ export function StoreHero({ data }: { data: TiendaRespuesta }) {
         <input
           id="busqueda-tienda"
           placeholder="Buscar producto..."
-          className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-text-primary placeholder:text-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-blue"
+          className="h-11 w-full rounded-xl border border-primary-blue/30 bg-background/80 px-4 text-sm text-text-primary shadow-inner placeholder:text-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-orange"
           {...register('busqueda')}
         />
       </form>

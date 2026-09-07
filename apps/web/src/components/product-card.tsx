@@ -10,9 +10,9 @@ export function ProductCard({ producto }: { producto: ProductoTienda }) {
     : `${formatearNumero(producto.precioPickCoins ?? 0)} PickCoins`;
 
   return (
-    <Card className="flex h-full flex-col gap-3 bg-surface-elevated/70">
+    <Card className="flex h-full flex-col gap-3 transition duration-200 hover:-translate-y-0.5 hover:border-primary-orange/40">
       <div
-        className="grid h-28 place-items-center rounded-xl bg-gradient-to-br from-background to-primary-blue/20 font-display text-2xl text-primary-blue"
+        className="grid h-28 place-items-center rounded-xl border border-primary-blue/20 bg-gradient-to-br from-primary-blue/15 via-background to-primary-orange/15 font-display text-2xl text-primary-orange shadow-inner"
         aria-hidden="true"
       >
         {producto.nombre.slice(0, 2).toUpperCase()}

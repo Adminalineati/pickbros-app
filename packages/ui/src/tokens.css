@@ -1,13 +1,13 @@
 /* Tokens visuales de PickBros. No dispersar hexadecimales por la app. */
 :root {
-  --background: #070b16;
-  --surface: #10182a;
-  --surface-elevated: #182236;
-  --border: #2a3650;
-  --primary-orange: #ff6a1a;
-  --primary-blue: #2ea8ff;
-  --text-primary: #f4f7fb;
-  --text-secondary: #9aa8c2;
-  --success: #22c55e;
-  --danger: #ef4444;
+  --background: #02040a;
+  --surface: #071321;
+  --surface-elevated: #0d1d31;
+  --border: #244567;
+  --primary-orange: #ff5b00;
+  --primary-blue: #1597ff;
+  --text-primary: #fbfcff;
+  --text-secondary: #a7b4c7;
+  --success: #27d17f;
+  --danger: #ff4d5f;
 }

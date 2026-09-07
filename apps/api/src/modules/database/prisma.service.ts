@@ -11,9 +11,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
       log: ['error'],
       datasources: {
         db: {
-          url:
-            process.env.DATABASE_URL ??
-            'postgresql://pickbros:pickbros@127.0.0.1:5432/pickbros',
+          url: PrismaService.databaseUrl(),
         },
       },
     });
@@ -23,8 +21,21 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     return this.conectado;
   }
 
+  async comprobarConexion(): Promise<boolean> {
+    if (!this.conectado) {
+      return false;
+    }
+
+    try {
+      await this.$queryRaw`SELECT 1`;
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   async onModuleInit() {
-    if (!process.env.DATABASE_URL) {
+    if (!process.env.DATABASE_URL && !process.env.DB_HOST) {
       this.logger.warn('No hay DATABASE_URL. Seguimos con mocks.');
       return;
     }
@@ -37,5 +48,25 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     if (this.conectado) {
       await this.$disconnect();
     }
+  }
+
+  private static databaseUrl(): string {
+    if (process.env.DATABASE_URL) {
+      return process.env.DATABASE_URL;
+    }
+
+    const {
+      DB_HOST: host,
+      DB_NAME: database,
+      DB_PASSWORD: password,
+      DB_PORT: port = '5432',
+      DB_USERNAME: username,
+    } = process.env;
+
+    if (host && database && password && username) {
+      return `postgresql://${encodeURIComponent(username)}:${encodeURIComponent(password)}@${host}:${port}/${database}?sslmode=require`;
+    }
+
+    return 'postgresql://pickbros:pickbros@127.0.0.1:5432/pickbros';
   }
 }

@@ -1,0 +1,143 @@
+name: Publicar en AWS
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Ambiente
+        type: choice
+        options: [dev, qa, prod]
+        default: dev
+        required: true
+      component:
+        description: Componente
+        type: choice
+        options: [all, web, api]
+        default: all
+        required: true
+      api_action:
+        description: En la primera ejecución usa publish-only
+        type: choice
+        options: [publish-only, deploy]
+        default: publish-only
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm test
+
+  api:
+    if: inputs.component == 'all' || inputs.component == 'api'
+    needs: quality
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_APPLICATION_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: pickbros-application-deploy
+
+      - id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Construir y publicar imagen
+        id: image
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+          REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          IMAGE="${REGISTRY}/${REPOSITORY}:${IMAGE_TAG}"
+          docker build -f apps/api/Dockerfile -t "${IMAGE}" .
+          docker push "${IMAGE}"
+          echo "uri=${IMAGE}" >> "$GITHUB_OUTPUT"
+
+      - name: Descargar task definition
+        if: inputs.api_action == 'deploy'
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition "${{ vars.ECS_TASK_DEFINITION }}" \
+            --query taskDefinition > task-definition.json
+
+      - id: task-definition
+        if: inputs.api_action == 'deploy'
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: api
+          image: ${{ steps.image.outputs.uri }}
+
+      - name: Desplegar API
+        if: inputs.api_action == 'deploy'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-definition.outputs.task-definition }}
+          cluster: ${{ vars.ECS_CLUSTER }}
+          service: ${{ vars.ECS_SERVICE }}
+          wait-for-service-stability: true
+
+  web:
+    if: inputs.component == 'all' || inputs.component == 'web'
+    needs: quality
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    env:
+      NEXT_PUBLIC_API_URL: ${{ vars.API_URL }}
+      NEXT_PUBLIC_COGNITO_AUTHORITY: ${{ vars.COGNITO_AUTHORITY }}
+      NEXT_PUBLIC_COGNITO_USER_POOL_ID: ${{ vars.COGNITO_USER_POOL_ID }}
+      NEXT_PUBLIC_COGNITO_CLIENT_ID: ${{ vars.COGNITO_CLIENT_ID }}
+      NEXT_PUBLIC_COGNITO_REDIRECT_URI: ${{ vars.COGNITO_REDIRECT_URI }}
+      NEXT_PUBLIC_COGNITO_LOGOUT_URI: ${{ vars.COGNITO_LOGOUT_URI }}
+      NEXT_PUBLIC_DEMO_MODE: "false"
+      NEXT_PUBLIC_LOCAL_AUTH_REQUIRED: "true"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @pickbros/types build && pnpm --filter web build
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_APPLICATION_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: pickbros-web-deploy
+
+      - name: Sincronizar web
+        run: aws s3 sync apps/web/out/ "s3://${{ vars.FRONTEND_BUCKET }}/" --delete
+
+      - name: Invalidar CloudFront
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --paths "/*"

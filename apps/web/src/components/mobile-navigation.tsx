@@ -11,7 +11,7 @@ export function MobileNavigation() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-md lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-primary-blue/30 bg-background/95 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-12px_32px_color-mix(in_srgb,var(--primary-blue)_8%,transparent)] backdrop-blur-xl lg:hidden"
       aria-label="Navegación inferior"
     >
       <ul className="grid grid-cols-5 items-end">
@@ -40,7 +40,11 @@ export function MobileNavigation() {
                     'grid place-items-center rounded-2xl',
                     esNuevo
                       ? 'h-14 w-14 bg-primary-orange text-white shadow-[0_8px_24px_color-mix(in_srgb,var(--primary-orange)_45%,transparent)]'
-                      : 'h-8 w-8',
+                      : cn(
+                          'h-8 w-8',
+                          activo &&
+                            'border border-primary-orange/35 bg-primary-orange/10 shadow-[0_0_14px_color-mix(in_srgb,var(--primary-orange)_18%,transparent)]',
+                        ),
                   )}
                 >
                   <Icono className={esNuevo ? 'h-6 w-6' : 'h-5 w-5'} aria-hidden="true" />

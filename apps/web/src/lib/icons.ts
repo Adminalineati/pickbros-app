@@ -1,5 +1,6 @@
 import {
   Bell,
+  CalendarDays,
   CircleHelp,
   Home,
   LineChart,
@@ -25,6 +26,7 @@ const iconos: Record<string, LucideIcon> = {
   bell: Bell,
   'circle-help': CircleHelp,
   plus: Plus,
+  'calendar-days': CalendarDays,
 };
 
 export function iconoDe(nombre: string): LucideIcon {

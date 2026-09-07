@@ -33,6 +33,57 @@ export interface EventoDestacado {
   inicialesLocal: string;
   inicialesVisitante: string;
   horario: string;
+  logoLocal?: string;
+  logoVisitante?: string;
+  estado?: EstadoEventoDeportivo;
+  marcadorLocal?: number;
+  marcadorVisitante?: number;
+}
+
+export type EstadoEventoDeportivo =
+  'PROGRAMADO' | 'EN_VIVO' | 'FINALIZADO' | 'POSPUESTO' | 'CANCELADO';
+
+export interface EquipoEventoDeportivo {
+  id: string;
+  nombre: string;
+  codigo: string;
+  logoUrl?: string;
+}
+
+export interface EventoDeportivo {
+  id: string;
+  liga: LigaDeportiva;
+  competicion: string;
+  temporada: string;
+  iniciaEn: string;
+  estado: EstadoEventoDeportivo;
+  estadoDetalle: string;
+  local: EquipoEventoDeportivo;
+  visitante: EquipoEventoDeportivo;
+  marcadorLocal?: number;
+  marcadorVisitante?: number;
+  sede?: string;
+  fase?: string;
+}
+
+export interface EstadoFuenteDeportiva {
+  liga: LigaDeportiva;
+  ok: boolean;
+  eventos: number;
+  error?: string;
+}
+
+export interface CalendarioDeportivo {
+  version: 1;
+  proveedor: 'api-sports' | 'demo';
+  actualizadoEn: string;
+  zonaHoraria: string;
+  ventana: {
+    desde: string;
+    hasta: string;
+  };
+  eventos: EventoDeportivo[];
+  fuentes: EstadoFuenteDeportiva[];
 }
 
 export interface PosicionRanking {
@@ -62,11 +113,7 @@ export interface DashboardRespuesta {
   misiones: MisionDiaria[];
 }
 
-export type CategoriaTienda =
-  | 'fan-shop'
-  | 'recompensas'
-  | 'premios-exclusivos'
-  | 'merch';
+export type CategoriaTienda = 'fan-shop' | 'recompensas' | 'premios-exclusivos' | 'merch';
 
 export interface ProductoTienda {
   id: string;

@@ -22,15 +22,16 @@ function Escudo({ iniciales, acento, nombre }: { iniciales: string; acento: stri
 
 export function DailyChallenge({ challenge }: { challenge: ChallengeDelDia }) {
   return (
-    <Card className="relative overflow-hidden border-primary-blue/30 bg-gradient-to-br from-surface-elevated via-surface to-background p-5 shadow-[0_0_40px_color-mix(in_srgb,var(--primary-blue)_12%,transparent)] md:p-8">
-      <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary-orange/10 blur-3xl" />
-      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary-orange">
+    <Card className="relative overflow-hidden border-primary-orange/35 bg-gradient-to-br from-primary-blue/10 via-surface to-primary-orange/10 p-5 shadow-[0_0_34px_color-mix(in_srgb,var(--primary-blue)_12%,transparent),0_0_34px_color-mix(in_srgb,var(--primary-orange)_10%,transparent)] md:p-8">
+      <div className="pointer-events-none absolute -left-20 bottom-0 h-56 w-56 rounded-full bg-primary-blue/10 blur-3xl" />
+      <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-primary-orange/15 blur-3xl" />
+      <p className="relative text-[11px] font-bold uppercase tracking-[0.22em] text-primary-orange">
         {challenge.titulo}
       </p>
-      <h2 className="mt-2 font-display text-3xl uppercase tracking-wide md:text-5xl">
+      <h2 className="relative mt-2 font-display text-3xl uppercase tracking-wide md:text-5xl">
         {challenge.pregunta}
       </h2>
-      <div className="mt-8 flex items-center justify-center gap-4 md:gap-10">
+      <div className="relative mt-8 flex items-center justify-center gap-4 md:gap-10">
         <Escudo
           nombre={challenge.local.nombre}
           iniciales={challenge.local.iniciales}
@@ -43,7 +44,7 @@ export function DailyChallenge({ challenge }: { challenge: ChallengeDelDia }) {
           acento={challenge.visitante.acento}
         />
       </div>
-      <div className="mt-8 flex flex-col items-center justify-between gap-4 sm:flex-row">
+      <div className="relative mt-8 flex flex-col items-center justify-between gap-4 border-t border-primary-blue/15 pt-5 sm:flex-row">
         <p className="text-sm text-text-secondary">{challenge.horario}</p>
         <div className="flex items-center gap-4">
           <p className="text-sm text-text-secondary">

@@ -23,14 +23,21 @@ body {
   min-height: 100%;
 }
 
+html {
+  color-scheme: dark;
+  background: var(--background);
+}
+
 body {
   background: var(--background);
   color: var(--text-primary);
   font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
 }
 
 ::selection {
   background: color-mix(in srgb, var(--primary-orange) 40%, transparent);
+  color: var(--text-primary);
 }
 
 :focus-visible {
@@ -41,7 +48,32 @@ body {
 .pb-app-bg {
   background-color: var(--background);
   background-image:
-    radial-gradient(ellipse 80% 50% at 10% -10%, color-mix(in srgb, var(--primary-blue) 18%, transparent), transparent),
-    radial-gradient(ellipse 60% 40% at 100% 0%, color-mix(in srgb, var(--primary-orange) 14%, transparent), transparent),
-    linear-gradient(180deg, #070b16 0%, #0a1224 100%);
+    linear-gradient(color-mix(in srgb, var(--border) 14%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--border) 14%, transparent) 1px, transparent 1px);
+  background-attachment: fixed;
+  background-size: 48px 48px;
+}
+
+* {
+  scrollbar-color: color-mix(in srgb, var(--border) 85%, var(--primary-blue)) var(--background);
+  scrollbar-width: thin;
+}
+
+.auth-input {
+  height: 3rem;
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--background) 88%, var(--surface));
+  padding-inline: 1rem;
+  color: var(--text-primary);
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.auth-input:focus {
+  border-color: var(--primary-orange);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-orange) 16%, transparent);
+  outline: none;
 }

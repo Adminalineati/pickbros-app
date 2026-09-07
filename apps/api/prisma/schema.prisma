@@ -56,6 +56,17 @@ enum RedemptionStatus {
   CANCELED
 }
 
+enum SubscriptionPlan {
+  SUBS1
+  SUBS2
+}
+
+enum AccountStatus {
+  PENDING_VERIFICATION
+  ACTIVE
+  SUSPENDED
+}
+
 model Rank {
   id       String @id @default(cuid())
   slug     String @unique
@@ -67,18 +78,36 @@ model Rank {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  email        String    @unique
-  username     String    @unique
-  displayName  String    @map("display_name")
-  rankId       String    @map("rank_id")
-  rank         Rank      @relation(fields: [rankId], references: [id])
-  level        Int       @default(1)
-  xp           Int       @default(0)
-  streakDays   Int       @default(0) @map("streak_days")
-  lastActiveAt DateTime? @map("last_active_at")
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
+  id                  String           @id @default(cuid())
+  cognitoSub          String?          @unique @map("cognito_sub")
+  email               String           @unique
+  username            String           @unique
+  displayName         String           @map("display_name")
+  firstName           String?          @map("first_name")
+  lastName            String?          @map("last_name")
+  dateOfBirth         DateTime?        @map("date_of_birth") @db.Date
+  phoneNumber         String?          @unique @map("phone_number")
+  country             String?
+  stateRegion         String?          @map("state_region")
+  passwordHash        String?          @map("password_hash")
+  subscriptionPlan    SubscriptionPlan @default(SUBS1) @map("subscription_plan")
+  accountStatus       AccountStatus    @default(PENDING_VERIFICATION) @map("account_status")
+  emailVerifiedAt     DateTime?        @map("email_verified_at")
+  phoneVerifiedAt     DateTime?        @map("phone_verified_at")
+  verificationHash    String?          @map("verification_hash")
+  verificationEnds    DateTime?        @map("verification_ends")
+  passwordResetHash   String?          @map("password_reset_hash")
+  passwordResetEnds   DateTime?        @map("password_reset_ends")
+  failedLoginAttempts Int              @default(0) @map("failed_login_attempts")
+  lockedUntil         DateTime?        @map("locked_until")
+  rankId              String?          @map("rank_id")
+  rank                Rank?            @relation(fields: [rankId], references: [id])
+  level               Int              @default(1)
+  xp                  Int              @default(0)
+  streakDays          Int              @default(0) @map("streak_days")
+  lastActiveAt        DateTime?        @map("last_active_at")
+  createdAt           DateTime         @default(now()) @map("created_at")
+  updatedAt           DateTime         @updatedAt @map("updated_at")
 
   wallet      Wallet?
   ledger      WalletLedger[]
@@ -87,6 +116,8 @@ model User {
   redemptions Redemption[]
   rankings    WeeklyRanking[]
 
+  @@index([accountStatus])
+  @@index([lockedUntil])
   @@map("users")
 }
 
@@ -104,16 +135,16 @@ model Wallet {
 
 // Movimientos append-only. El saldo en wallets se actualiza en la misma transacción.
 model WalletLedger {
-  id        String           @id @default(cuid())
-  userId    String           @map("user_id")
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String          @id @default(cuid())
+  userId    String          @map("user_id")
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   currency  WalletCurrency
   direction LedgerDirection
   amount    Int
   reason    String
-  refType   String?          @map("ref_type")
-  refId     String?          @map("ref_id")
-  createdAt DateTime         @default(now()) @map("created_at")
+  refType   String?         @map("ref_type")
+  refId     String?         @map("ref_id")
+  createdAt DateTime        @default(now()) @map("created_at")
 
   @@index([userId, createdAt])
   @@index([refType, refId])
@@ -121,29 +152,124 @@ model WalletLedger {
 }
 
 model SportEvent {
-  id         String      @id @default(cuid())
-  league     League
-  homeName   String      @map("home_name")
-  homeCode   String      @map("home_code")
-  awayName   String      @map("away_name")
-  awayCode   String      @map("away_code")
-  startsAt   DateTime    @map("starts_at")
-  status     EventStatus @default(SCHEDULED)
-  featured   Boolean     @default(false)
-  challenges DailyChallenge[]
-  picks      Pick[]
+  id            String              @id @default(cuid())
+  league        League
+  homeName      String              @map("home_name")
+  homeCode      String              @map("home_code")
+  awayName      String              @map("away_name")
+  awayCode      String              @map("away_code")
+  startsAt      DateTime            @map("starts_at")
+  status        EventStatus         @default(SCHEDULED)
+  featured      Boolean             @default(false)
+  providerId    String?             @map("provider_id")
+  provider      SportsDataProvider? @relation(fields: [providerId], references: [id])
+  externalId    String?             @map("external_id")
+  competitionId String?             @map("competition_id")
+  competition   Competition?        @relation(fields: [competitionId], references: [id])
+  homeTeamId    String?             @map("home_team_id")
+  homeTeam      Team?               @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  homeScore     Int?                @map("home_score")
+  awayTeamId    String?             @map("away_team_id")
+  awayTeam      Team?               @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  awayScore     Int?                @map("away_score")
+  rawPayload    Json?               @map("raw_payload")
+  syncedAt      DateTime?           @map("synced_at")
+  updatedAt     DateTime            @updatedAt @map("updated_at")
+  challenges    DailyChallenge[]
+  picks         Pick[]
 
+  @@unique([providerId, externalId])
   @@index([startsAt])
   @@index([league, startsAt])
   @@index([featured, startsAt])
   @@map("sport_events")
 }
 
+model SportsDataProvider {
+  id           String          @id @default(cuid())
+  slug         String          @unique
+  name         String
+  active       Boolean         @default(true)
+  competitions Competition[]
+  teams        Team[]
+  events       SportEvent[]
+  syncRuns     SportsSyncRun[]
+
+  @@map("sports_data_providers")
+}
+
+model Competition {
+  id         String             @id @default(cuid())
+  providerId String             @map("provider_id")
+  provider   SportsDataProvider @relation(fields: [providerId], references: [id])
+  externalId String             @map("external_id")
+  name       String
+  league     League
+  season     String
+  events     SportEvent[]
+  standings  Standing[]
+
+  @@unique([providerId, externalId])
+  @@index([league, season])
+  @@map("competitions")
+}
+
+model Team {
+  id         String             @id @default(cuid())
+  providerId String             @map("provider_id")
+  provider   SportsDataProvider @relation(fields: [providerId], references: [id])
+  externalId String             @map("external_id")
+  name       String
+  shortName  String?            @map("short_name")
+  logoUrl    String?            @map("logo_url")
+  homeEvents SportEvent[]       @relation("HomeTeam")
+  awayEvents SportEvent[]       @relation("AwayTeam")
+  standings  Standing[]
+
+  @@unique([providerId, externalId])
+  @@index([name])
+  @@map("teams")
+}
+
+model Standing {
+  id            String      @id @default(cuid())
+  competitionId String      @map("competition_id")
+  competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  teamId        String      @map("team_id")
+  team          Team        @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  position      Int
+  played        Int         @default(0)
+  won           Int         @default(0)
+  drawn         Int         @default(0)
+  lost          Int         @default(0)
+  points        Int         @default(0)
+  syncedAt      DateTime    @map("synced_at")
+
+  @@unique([competitionId, teamId])
+  @@index([competitionId, position])
+  @@map("standings")
+}
+
+model SportsSyncRun {
+  id         String             @id @default(cuid())
+  providerId String             @map("provider_id")
+  provider   SportsDataProvider @relation(fields: [providerId], references: [id])
+  resource   String
+  status     String
+  cursor     String?
+  startedAt  DateTime           @default(now()) @map("started_at")
+  finishedAt DateTime?          @map("finished_at")
+  error      String?
+
+  @@index([providerId, resource, startedAt])
+  @@map("sports_sync_runs")
+}
+
 model DailyChallenge {
   id             String     @id @default(cuid())
   eventId        String     @map("event_id")
   event          SportEvent @relation(fields: [eventId], references: [id])
-  challengeDate  DateTime   @db.Date @map("challenge_date")
+  challengeDate  DateTime   @map("challenge_date") @db.Date
   prizePickCoins Int        @map("prize_pick_coins")
   active         Boolean    @default(true)
   picks          Pick[]
@@ -189,7 +315,7 @@ model UserMission {
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   missionId   String    @map("mission_id")
   mission     Mission   @relation(fields: [missionId], references: [id])
-  periodDate  DateTime  @db.Date @map("period_date")
+  periodDate  DateTime  @map("period_date") @db.Date
   progress    Int       @default(0)
   completedAt DateTime? @map("completed_at")
 
@@ -201,7 +327,7 @@ model UserMission {
 // Snapshot semanal. El dashboard no suma picks en caliente.
 model WeeklyRanking {
   id        String   @id @default(cuid())
-  weekStart DateTime @db.Date @map("week_start")
+  weekStart DateTime @map("week_start") @db.Date
   userId    String   @map("user_id")
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   points    Int
