@@ -30,7 +30,7 @@ jobs:
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_APPLICATION_DEPLOY_ROLE_ARN }}
+          role-to-assume: arn:aws:iam::033649548773:role/pickbros-nonprod-application-deploy
           aws-region: ${{ env.AWS_REGION }}
           role-session-name: pickbros-sports-sync
 
