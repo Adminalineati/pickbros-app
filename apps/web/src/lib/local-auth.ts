@@ -18,6 +18,10 @@ function parseSubscription(value: unknown): Subscription {
     : 'free';
 }
 
+function cognitoSubscription(plan: SubscriptionPlan) {
+  return plan === 'PREMIUM' ? 'SUBS2' : 'SUBS1';
+}
+
 export interface SessionUser {
   id: string;
   nombre: string;
@@ -166,7 +170,10 @@ export async function register(input: {
       new CognitoUserAttribute({ Name: 'phone_number', Value: input.telefono }),
       new CognitoUserAttribute({ Name: 'custom:country', Value: input.pais }),
       new CognitoUserAttribute({ Name: 'custom:state', Value: input.estado.trim() }),
-      new CognitoUserAttribute({ Name: 'custom:subscription', Value: input.suscripcion }),
+      new CognitoUserAttribute({
+        Name: 'custom:subscription',
+        Value: cognitoSubscription(input.suscripcion),
+      }),
     ];
 
     return new Promise<{

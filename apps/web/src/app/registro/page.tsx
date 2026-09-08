@@ -90,6 +90,7 @@ export default function RegisterPage() {
   });
   const pais = watch('pais');
   const estado = watch('estado');
+  const suscripcion = watch('suscripcion');
   const fechaNacimiento = watch('fechaNacimiento');
   const estados = estadosDe(pais);
   const codigoTelefono = codigoTelefonoDe(pais);
@@ -290,8 +291,8 @@ export default function RegisterPage() {
                 key={value}
               >
                 <input
+                  checked={suscripcion === value}
                   className="sr-only"
-                  defaultChecked={value === 'FREE'}
                   type="radio"
                   value={value}
                   {...register('suscripcion')}
