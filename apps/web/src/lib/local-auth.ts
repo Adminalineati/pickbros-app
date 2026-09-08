@@ -86,7 +86,9 @@ function sessionUser(session: CognitoUserSession): SessionUser {
     nombre: String(payload.given_name ?? correo.split('@')[0] ?? 'Usuario'),
     apellido: String(payload.family_name ?? ''),
     correo,
-    suscripcion: parseSubscription(payload['custom:subscription']),
+    suscripcion: parseSubscription(
+      payload['custom:membership'] ?? payload['custom:subscription'],
+    ),
   };
 }
 
@@ -164,7 +166,7 @@ export async function register(input: {
       new CognitoUserAttribute({ Name: 'custom:country', Value: input.pais }),
       new CognitoUserAttribute({ Name: 'custom:state', Value: input.estado.trim() }),
       new CognitoUserAttribute({
-        Name: 'custom:subscription',
+        Name: 'custom:membership',
         Value: input.suscripcion,
       }),
     ];
