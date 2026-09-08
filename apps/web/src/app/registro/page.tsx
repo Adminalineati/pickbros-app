@@ -13,7 +13,7 @@ import {
   BIRTHDATE_RANGE_MESSAGE,
   isEligibleBirthDate,
 } from '@/lib/birthdate';
-import { estadosDe, PAISES } from '@/lib/locations';
+import { codigoTelefonoDe, estadosDe, PAISES } from '@/lib/locations';
 import {
   ApiError,
   cognitoUserPoolConfigured,
@@ -22,6 +22,8 @@ import {
 
 const passwordPattern =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,72}$/;
+
+const E164_PHONE = /^\+[1-9]\d{7,14}$/;
 
 const schema = z
   .object({
@@ -32,12 +34,9 @@ const schema = z
       .string()
       .min(1, 'Selecciona tu fecha de nacimiento')
       .refine(isEligibleBirthDate, BIRTHDATE_RANGE_MESSAGE),
-    telefono: z
+    telefonoLocal: z
       .string()
-      .regex(
-        /^\+[1-9]\d{7,14}$/,
-        'Incluye código de país, por ejemplo +525512345678',
-      ),
+      .regex(/^\d{8,14}$/, 'Ingresa tu número sin el código de país'),
     pais: z.string().length(2, 'Selecciona tu país'),
     estado: z.string().trim().min(1, 'Selecciona tu estado o provincia'),
     password: z
@@ -56,7 +55,15 @@ const schema = z
   .refine((data) => estadosDe(data.pais).includes(data.estado), {
     message: 'Selecciona un estado o provincia de la lista',
     path: ['estado'],
-  });
+  })
+  .refine(
+    (data) =>
+      E164_PHONE.test(`${codigoTelefonoDe(data.pais)}${data.telefonoLocal}`),
+    {
+      message: 'Ingresa un número de celular válido',
+      path: ['telefonoLocal'],
+    },
+  );
 
 type FormData = z.infer<typeof schema>;
 
@@ -74,11 +81,19 @@ export default function RegisterPage() {
     watch,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
-    defaultValues: { pais: 'MX', estado: '', suscripcion: 'FREE' },
+    defaultValues: {
+      pais: 'MX',
+      estado: '',
+      telefonoLocal: '',
+      suscripcion: 'FREE',
+    },
   });
   const pais = watch('pais');
+  const estado = watch('estado');
   const fechaNacimiento = watch('fechaNacimiento');
   const estados = estadosDe(pais);
+  const codigoTelefono = codigoTelefonoDe(pais);
+  const ubicacionCompleta = Boolean(pais && estado);
   const birthDateOutOfRange =
     Boolean(fechaNacimiento) && !isEligibleBirthDate(fechaNacimiento);
 
@@ -101,13 +116,14 @@ export default function RegisterPage() {
     }
 
     try {
+      const telefono = `${codigoTelefonoDe(result.data.pais)}${result.data.telefonoLocal}`;
       const response = await registerUser({
         nombre: result.data.nombre,
         apellido: result.data.apellido,
         correo: result.data.correo,
         password: result.data.password,
         fechaNacimiento: result.data.fechaNacimiento,
-        telefono: result.data.telefono,
+        telefono,
         pais: result.data.pais,
         estado: result.data.estado,
         suscripcion: result.data.suscripcion,
@@ -193,21 +209,15 @@ export default function RegisterPage() {
             })}
           />
         </Field>
-        <Field label="Teléfono celular" error={errors.telefono?.message}>
-          <input
-            autoComplete="tel"
-            className="auth-input"
-            inputMode="tel"
-            placeholder="+525512345678"
-            {...register('telefono')}
-          />
-        </Field>
         <Field label="País" error={errors.pais?.message}>
           <select
             autoComplete="country"
             className="auth-input"
             {...register('pais', {
-              onChange: () => setValue('estado', ''),
+              onChange: () => {
+                setValue('estado', '');
+                setValue('telefonoLocal', '');
+              },
             })}
           >
             {PAISES.map((item) => (
@@ -221,15 +231,50 @@ export default function RegisterPage() {
           <select
             autoComplete="address-level1"
             className="auth-input"
-            {...register('estado')}
+            {...register('estado', {
+              onChange: () => setValue('telefonoLocal', ''),
+            })}
           >
             <option value="">Selecciona tu estado</option>
-            {estados.map((estado) => (
-              <option key={estado} value={estado}>
-                {estado}
+            {estados.map((item) => (
+              <option key={item} value={item}>
+                {item}
               </option>
             ))}
           </select>
+        </Field>
+        <Field
+          label="Teléfono celular"
+          hint={
+            ubicacionCompleta
+              ? undefined
+              : 'Primero selecciona tu país y estado'
+          }
+          error={errors.telefonoLocal?.message}
+        >
+          <div className="flex gap-2">
+            <span
+              aria-hidden="true"
+              className="auth-input flex w-[4.5rem] shrink-0 items-center justify-center bg-surface text-text-secondary"
+            >
+              {codigoTelefono}
+            </span>
+            <input
+              autoComplete="tel-national"
+              className="auth-input min-w-0 flex-1"
+              disabled={!ubicacionCompleta}
+              inputMode="numeric"
+              placeholder="5512345678"
+              {...register('telefonoLocal', {
+                onChange: (event) => {
+                  const digits = event.target.value.replace(/\D/g, '');
+                  if (digits !== event.target.value) {
+                    setValue('telefonoLocal', digits);
+                  }
+                },
+              })}
+            />
+          </div>
         </Field>
 
         <fieldset className="md:col-span-2">

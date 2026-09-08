@@ -199,6 +199,19 @@ export const ESTADOS_POR_PAIS: Record<string, string[]> = {
   ],
 };
 
+export const CODIGO_TELEFONO_POR_PAIS: Record<string, string> = {
+  MX: '+52',
+  US: '+1',
+  CA: '+1',
+  AR: '+54',
+  CO: '+57',
+  ES: '+34',
+};
+
 export function estadosDe(pais: string) {
   return ESTADOS_POR_PAIS[pais] ?? [];
+}
+
+export function codigoTelefonoDe(pais: string) {
+  return CODIGO_TELEFONO_POR_PAIS[pais] ?? '';
 }
