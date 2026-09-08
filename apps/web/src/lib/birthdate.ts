@@ -1,5 +1,5 @@
 export const BIRTHDATE_RANGE_MESSAGE =
-  'No pueden registrarse personas menores de 18 años ni mayores de 100 años.';
+  'No pueden registrarse personas menores de edad';
 
 export function toIsoDate(date: Date) {
   const year = date.getFullYear();

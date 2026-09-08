@@ -21,7 +21,6 @@ test('rechaza menores de 18 y mayores de 100', () => {
   assert.equal(isEligibleBirthDate('2026-09-08', today), false);
 });
 
-test('la leyenda explica el rango permitido', () => {
-  assert.match(BIRTHDATE_RANGE_MESSAGE, /menores de 18/);
-  assert.match(BIRTHDATE_RANGE_MESSAGE, /mayores de 100/);
+test('la leyenda explica la restricción de edad', () => {
+  assert.match(BIRTHDATE_RANGE_MESSAGE, /menores de edad/);
 });
