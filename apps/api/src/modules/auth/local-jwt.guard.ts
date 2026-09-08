@@ -10,7 +10,7 @@ import type { Request } from 'express';
 export interface LocalSessionUser {
   sub: string;
   email: string;
-  subscriptionPlan: 'SUBS1' | 'SUBS2';
+  subscriptionPlan: 'FREE' | 'PREMIUM';
 }
 
 export const SESSION_COOKIE = 'pickbros_session';

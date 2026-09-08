@@ -77,3 +77,8 @@ body {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-orange) 16%, transparent);
   outline: none;
 }
+
+.auth-input option {
+  background: var(--surface);
+  color: var(--text-primary);
+}

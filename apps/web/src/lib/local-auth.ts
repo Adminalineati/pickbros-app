@@ -8,7 +8,15 @@ import {
   type CognitoUserSession,
 } from 'amazon-cognito-identity-js';
 
-export type Subscription = 'subs1' | 'subs2';
+export type Subscription = 'free' | 'premium';
+export type SubscriptionPlan = 'FREE' | 'PREMIUM';
+
+function parseSubscription(value: unknown): Subscription {
+  const normalized = String(value ?? '').toUpperCase();
+  return normalized === 'PREMIUM' || normalized === 'SUBS2'
+    ? 'premium'
+    : 'free';
+}
 
 export interface SessionUser {
   id: string;
@@ -76,17 +84,12 @@ function saveUser(user: SessionUser | null) {
 function sessionUser(session: CognitoUserSession): SessionUser {
   const payload = session.getIdToken().decodePayload() as Record<string, unknown>;
   const correo = String(payload.email ?? '');
-  const subscription =
-    String(payload['custom:subscription'] ?? '').toUpperCase() === 'SUBS2'
-      ? 'subs2'
-      : 'subs1';
-
   return {
     id: String(payload.sub ?? ''),
     nombre: String(payload.given_name ?? correo.split('@')[0] ?? 'Usuario'),
     apellido: String(payload.family_name ?? ''),
     correo,
-    suscripcion: subscription,
+    suscripcion: parseSubscription(payload['custom:subscription']),
   };
 }
 
@@ -148,7 +151,7 @@ export async function register(input: {
   telefono: string;
   pais: string;
   estado: string;
-  suscripcion: 'SUBS1' | 'SUBS2';
+  suscripcion: SubscriptionPlan;
 }): Promise<{
   mensaje: string;
   requiereVerificacion: boolean;
@@ -196,7 +199,7 @@ export async function register(input: {
               nombre: input.nombre.trim(),
               apellido: input.apellido.trim(),
               correo: input.correo.trim().toLowerCase(),
-              suscripcion: input.suscripcion.toLowerCase() as Subscription,
+              suscripcion: parseSubscription(input.suscripcion),
             },
           });
         },
@@ -308,7 +311,7 @@ export function verifyEmail(correo: string, codigo: string) {
             nombre: '',
             apellido: '',
             correo: correo.trim().toLowerCase(),
-            suscripcion: 'subs1',
+            suscripcion: 'free',
           },
         });
       });

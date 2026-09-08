@@ -14,10 +14,10 @@ export const dashboardMock: DashboardRespuesta = {
   rachaDias: 7,
   challengeDelDia: {
     titulo: 'Pick Challenge del día',
-    pregunta: '¿Quién gana este duelo?',
-    local: { nombre: 'Dodgers', iniciales: 'LAD', acento: '#2EA8FF' },
-    visitante: { nombre: 'Giants', iniciales: 'SF', acento: '#FF6A1A' },
-    horario: 'Hoy 7:10 PM',
+    pregunta: '¿Quién gana este duelo de MLB?',
+    local: { nombre: 'Yankees', iniciales: 'NYY', acento: '#2EA8FF' },
+    visitante: { nombre: 'Red Sox', iniciales: 'BOS', acento: '#FF6A1A' },
+    horario: 'Próximo partido',
     premioPickCoins: 150,
   },
   eventosDestacados: [

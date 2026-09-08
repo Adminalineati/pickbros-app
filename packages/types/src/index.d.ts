@@ -11,6 +11,7 @@ export interface EquipoChallenge {
     nombre: string;
     iniciales: string;
     acento: string;
+    logoUrl?: string;
 }
 export interface ChallengeDelDia {
     titulo: string;

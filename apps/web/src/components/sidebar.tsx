@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Sparkles } from 'lucide-react';
+import { BrandMark } from '@/components/brand-mark';
 import { iconoDe } from '@/lib/icons';
 import { navPrincipal } from '@/lib/nav';
 import { cn } from '@/lib/utils';
@@ -18,19 +19,8 @@ export function Sidebar() {
       className="sticky top-0 hidden h-dvh w-[272px] shrink-0 flex-col overflow-y-auto border-r border-primary-blue/15 bg-background/95 px-4 py-5 shadow-[12px_0_40px_color-mix(in_srgb,var(--background)_72%,transparent)] backdrop-blur-xl lg:flex"
       aria-label="Navegación principal"
     >
-      <Link href="/" className="mb-8 flex items-center gap-3 px-2">
-        <span className="grid h-11 w-11 -skew-x-6 place-items-center rounded-xl border border-primary-orange/40 bg-gradient-to-br from-primary-orange via-primary-orange to-primary-orange/55 font-display text-lg text-white shadow-[0_0_24px_color-mix(in_srgb,var(--primary-orange)_40%,transparent)]">
-          PB
-        </span>
-        <span>
-          <span className="block font-display text-xl uppercase tracking-wider">
-            <span className="text-text-primary">Pick</span>
-            <span className="text-primary-orange">Bros</span>
-          </span>
-          <span className="text-[10px] uppercase tracking-[0.16em] text-text-secondary">
-            Picks · análisis · comunidad
-          </span>
-        </span>
+      <Link href="/" className="mb-8 px-2">
+        <BrandMark />
       </Link>
 
       <nav className="flex flex-1 flex-col gap-1">

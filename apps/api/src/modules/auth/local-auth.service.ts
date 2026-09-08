@@ -42,7 +42,7 @@ export class LocalAuthService {
     this.assertEnabled();
     const email = input.correo;
     const birthDate = new Date(`${input.fechaNacimiento}T00:00:00.000Z`);
-    this.assertAdult(birthDate);
+    this.assertBirthDate(birthDate);
 
     const [existingEmail, existingPhone] = await Promise.all([
       this.prisma.user.findUnique({ where: { email } }),
@@ -326,33 +326,42 @@ export class LocalAuthService {
     firstName?: string | null;
     lastName?: string | null;
     email: string;
-    subscriptionPlan: 'SUBS1' | 'SUBS2';
+    subscriptionPlan: 'FREE' | 'PREMIUM';
   }) {
     return {
       id: user.id,
       nombre: user.firstName ?? user.displayName,
       apellido: user.lastName ?? '',
       correo: user.email,
-      suscripcion: user.subscriptionPlan.toLowerCase(),
+      suscripcion: user.subscriptionPlan === 'PREMIUM' ? 'premium' : 'free',
     };
   }
 
-  private assertAdult(birthDate: Date) {
+  private assertBirthDate(birthDate: Date) {
     if (Number.isNaN(birthDate.getTime())) {
       throw new BadRequestException('La fecha de nacimiento no es válida');
     }
 
     const today = new Date();
-    const adultLimit = new Date(
+    const youngest = new Date(
       Date.UTC(
         today.getUTCFullYear() - 18,
         today.getUTCMonth(),
         today.getUTCDate(),
       ),
     );
+    const oldest = new Date(
+      Date.UTC(
+        today.getUTCFullYear() - 100,
+        today.getUTCMonth(),
+        today.getUTCDate(),
+      ),
+    );
 
-    if (birthDate > adultLimit) {
-      throw new BadRequestException('Debes ser mayor de edad para registrarte');
+    if (birthDate > youngest || birthDate < oldest) {
+      throw new BadRequestException(
+        'No pueden registrarse personas menores de 18 años ni mayores de 100 años',
+      );
     }
   }
 

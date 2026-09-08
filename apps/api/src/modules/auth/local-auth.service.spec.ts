@@ -16,7 +16,7 @@ describe('LocalAuthService', () => {
     process.env.LOCAL_AUTH_ENABLED = previousEnabled;
   });
 
-  it('rechaza el registro de una persona menor de edad', async () => {
+  it('rechaza el registro de una persona menor de 18 años', async () => {
     const service = createService({ findUnique: jest.fn() });
 
     await expect(
@@ -29,9 +29,41 @@ describe('LocalAuthService', () => {
         telefono: '+525512345678',
         pais: 'MX',
         estado: 'Jalisco',
-        suscripcion: SubscriptionPlan.SUBS1,
+        suscripcion: SubscriptionPlan.FREE,
       }),
-    ).rejects.toMatchObject({ status: HttpStatus.BAD_REQUEST });
+    ).rejects.toMatchObject({
+      status: HttpStatus.BAD_REQUEST,
+      response: {
+        message:
+          'No pueden registrarse personas menores de 18 años ni mayores de 100 años',
+      },
+    });
+  });
+
+  it('rechaza el registro de una persona mayor de 100 años', async () => {
+    const service = createService({ findUnique: jest.fn() });
+    const tooOld = new Date();
+    tooOld.setUTCFullYear(tooOld.getUTCFullYear() - 101);
+
+    await expect(
+      service.register({
+        nombre: 'Ana',
+        apellido: 'Demo',
+        correo: 'ana@example.com',
+        password: 'SeguraDemo2026!',
+        fechaNacimiento: tooOld.toISOString().slice(0, 10),
+        telefono: '+525512345678',
+        pais: 'MX',
+        estado: 'Jalisco',
+        suscripcion: SubscriptionPlan.FREE,
+      }),
+    ).rejects.toMatchObject({
+      status: HttpStatus.BAD_REQUEST,
+      response: {
+        message:
+          'No pueden registrarse personas menores de 18 años ni mayores de 100 años',
+      },
+    });
   });
 
   it('rechaza un correo duplicado e indica si requiere activación', async () => {
@@ -52,7 +84,7 @@ describe('LocalAuthService', () => {
         telefono: '+525512345678',
         pais: 'MX',
         estado: 'Jalisco',
-        suscripcion: SubscriptionPlan.SUBS1,
+        suscripcion: SubscriptionPlan.FREE,
       }),
     ).rejects.toMatchObject({
       response: {
@@ -71,7 +103,7 @@ describe('LocalAuthService', () => {
       firstName: 'Demo',
       lastName: 'PickBro',
       passwordHash: await hash('CorrectaDemo2026!', 4),
-      subscriptionPlan: SubscriptionPlan.SUBS2,
+      subscriptionPlan: SubscriptionPlan.PREMIUM,
       accountStatus: AccountStatus.ACTIVE,
       emailVerifiedAt: new Date(),
       failedLoginAttempts: 0,

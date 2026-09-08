@@ -10,6 +10,11 @@ import { AuthShell } from '@/components/auth-shell';
 import { Button } from '@/components/ui/button';
 import { authConfigured, authManager } from '@/lib/auth';
 import {
+  BIRTHDATE_RANGE_MESSAGE,
+  isEligibleBirthDate,
+} from '@/lib/birthdate';
+import { estadosDe, PAISES } from '@/lib/locations';
+import {
   ApiError,
   cognitoUserPoolConfigured,
   register as registerUser,
@@ -17,17 +22,6 @@ import {
 
 const passwordPattern =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,72}$/;
-
-function isAdult(value: string) {
-  const birthDate = new Date(`${value}T00:00:00`);
-  const today = new Date();
-  const limit = new Date(
-    today.getFullYear() - 18,
-    today.getMonth(),
-    today.getDate(),
-  );
-  return !Number.isNaN(birthDate.getTime()) && birthDate <= limit;
-}
 
 const schema = z
   .object({
@@ -37,7 +31,7 @@ const schema = z
     fechaNacimiento: z
       .string()
       .min(1, 'Selecciona tu fecha de nacimiento')
-      .refine(isAdult, 'Debes ser mayor de edad'),
+      .refine(isEligibleBirthDate, BIRTHDATE_RANGE_MESSAGE),
     telefono: z
       .string()
       .regex(
@@ -45,7 +39,7 @@ const schema = z
         'Incluye código de país, por ejemplo +525512345678',
       ),
     pais: z.string().length(2, 'Selecciona tu país'),
-    estado: z.string().trim().min(2, 'Escribe tu estado o provincia'),
+    estado: z.string().trim().min(1, 'Selecciona tu estado o provincia'),
     password: z
       .string()
       .regex(
@@ -53,11 +47,15 @@ const schema = z
         'Usa 12 caracteres con mayúscula, minúscula, número y símbolo',
       ),
     confirmacion: z.string(),
-    suscripcion: z.enum(['SUBS1', 'SUBS2']),
+    suscripcion: z.enum(['FREE', 'PREMIUM']),
   })
   .refine((data) => data.password === data.confirmacion, {
     message: 'Las contraseñas no coinciden',
     path: ['confirmacion'],
+  })
+  .refine((data) => estadosDe(data.pais).includes(data.estado), {
+    message: 'Selecciona un estado o provincia de la lista',
+    path: ['estado'],
   });
 
 type FormData = z.infer<typeof schema>;
@@ -71,10 +69,18 @@ export default function RegisterPage() {
     register,
     handleSubmit,
     setError,
+    setValue,
+    clearErrors,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
-    defaultValues: { pais: 'MX', suscripcion: 'SUBS1' },
+    defaultValues: { pais: 'MX', estado: '', suscripcion: 'FREE' },
   });
+  const pais = watch('pais');
+  const fechaNacimiento = watch('fechaNacimiento');
+  const estados = estadosDe(pais);
+  const birthDateOutOfRange =
+    Boolean(fechaNacimiento) && !isEligibleBirthDate(fechaNacimiento);
 
   useEffect(() => {
     if (authConfigured() && !cognitoUserPoolConfigured()) {
@@ -166,13 +172,25 @@ export default function RegisterPage() {
         </Field>
         <Field
           label="Fecha de nacimiento"
+          hint={BIRTHDATE_RANGE_MESSAGE}
           error={errors.fechaNacimiento?.message}
         >
           <input
             autoComplete="bday"
             className="auth-input"
             type="date"
-            {...register('fechaNacimiento')}
+            {...register('fechaNacimiento', {
+              onChange: (event) => {
+                const value = event.target.value;
+                if (value && !isEligibleBirthDate(value)) {
+                  setError('fechaNacimiento', {
+                    message: BIRTHDATE_RANGE_MESSAGE,
+                  });
+                  return;
+                }
+                clearErrors('fechaNacimiento');
+              },
+            })}
           />
         </Field>
         <Field label="Teléfono celular" error={errors.telefono?.message}>
@@ -188,30 +206,40 @@ export default function RegisterPage() {
           <select
             autoComplete="country"
             className="auth-input"
-            {...register('pais')}
+            {...register('pais', {
+              onChange: () => setValue('estado', ''),
+            })}
           >
-            <option value="MX">México</option>
-            <option value="US">Estados Unidos</option>
-            <option value="CA">Canadá</option>
-            <option value="AR">Argentina</option>
-            <option value="CO">Colombia</option>
-            <option value="ES">España</option>
+            {PAISES.map((item) => (
+              <option key={item.codigo} value={item.codigo}>
+                {item.nombre}
+              </option>
+            ))}
           </select>
         </Field>
         <Field label="Estado o provincia" error={errors.estado?.message}>
-          <input
+          <select
             autoComplete="address-level1"
             className="auth-input"
             {...register('estado')}
-          />
+          >
+            <option value="">Selecciona tu estado</option>
+            {estados.map((estado) => (
+              <option key={estado} value={estado}>
+                {estado}
+              </option>
+            ))}
+          </select>
         </Field>
 
         <fieldset className="md:col-span-2">
-          <legend className="mb-2 text-sm text-text-secondary">Suscripción</legend>
+          <legend className="mb-2 text-sm text-text-secondary">
+            Tipo de membresía
+          </legend>
           <div className="grid grid-cols-2 gap-3">
             {[
-              ['SUBS1', 'Subs 1', 'Plan inicial'],
-              ['SUBS2', 'Subs 2', 'Plan avanzado'],
+              ['FREE', 'Free', 'Acceso básico a picks y comunidad'],
+              ['PREMIUM', 'Premium', 'Análisis, retos y recompensas extra'],
             ].map(([value, title, detail]) => (
               <label
                 className="cursor-pointer rounded-xl border border-border bg-background p-3 transition has-[:checked]:border-primary-orange has-[:checked]:bg-primary-orange/10"
@@ -219,7 +247,7 @@ export default function RegisterPage() {
               >
                 <input
                   className="sr-only"
-                  defaultChecked={value === 'SUBS1'}
+                  defaultChecked={value === 'FREE'}
                   type="radio"
                   value={value}
                   {...register('suscripcion')}
@@ -277,7 +305,7 @@ export default function RegisterPage() {
 
         <Button
           className="w-full md:col-span-2"
-          disabled={isSubmitting}
+          disabled={isSubmitting || birthDateOutOfRange}
           type="submit"
         >
           {isSubmitting ? 'Creando cuenta…' : 'Crear cuenta'}
@@ -297,19 +325,28 @@ export default function RegisterPage() {
 function Field({
   label,
   error,
+  hint,
   children,
   className = '',
 }: {
   label: string;
   error?: string;
+  hint?: string;
   children: ReactNode;
   className?: string;
 }) {
+  const message = error ?? hint;
   return (
     <label className={`block text-sm ${className}`}>
       <span className="mb-1.5 block text-text-secondary">{label}</span>
       {children}
-      {error ? <span className="mt-1 block text-xs text-danger">{error}</span> : null}
+      {message ? (
+        <span
+          className={`mt-1 block text-xs ${error ? 'text-danger' : 'text-text-secondary'}`}
+        >
+          {message}
+        </span>
+      ) : null}
     </label>
   );
 }

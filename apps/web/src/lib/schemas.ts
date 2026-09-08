@@ -4,6 +4,7 @@ const equipoSchema = z.object({
   nombre: z.string(),
   iniciales: z.string(),
   acento: z.string(),
+  logoUrl: z.string().optional(),
 });
 
 export const dashboardSchema = z.object({

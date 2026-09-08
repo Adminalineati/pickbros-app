@@ -1,11 +1,18 @@
 import type {
   CalendarioDeportivo,
+  ChallengeDelDia,
   EventoDeportivo,
   EventoDestacado,
   LigaDeportiva,
 } from '@pickbros/types';
 
 const ligas: LigaDeportiva[] = ['MLB', 'NBA', 'NFL', 'Champions'];
+const acentos: Record<LigaDeportiva, { local: string; visitante: string }> = {
+  MLB: { local: '#2EA8FF', visitante: '#FF6A1A' },
+  NBA: { local: '#FF6A1A', visitante: '#2EA8FF' },
+  NFL: { local: '#22C55E', visitante: '#FF6A1A' },
+  Champions: { local: '#2EA8FF', visitante: '#94A3B8' },
+};
 
 export function esCalendarioDeportivo(value: unknown): value is CalendarioDeportivo {
   if (!value || typeof value !== 'object') return false;
@@ -31,7 +38,7 @@ export async function cargarCalendarioDeportivo(signal?: AbortSignal) {
   if (!esCalendarioDeportivo(body)) {
     throw new Error('El calendario deportivo tiene un formato inválido.');
   }
-  return body;
+  return calendarioConAgenda(body);
 }
 
 export function horarioEvento(evento: EventoDeportivo, zonaHoraria: string) {
@@ -47,6 +54,117 @@ export function horarioEvento(evento: EventoDeportivo, zonaHoraria: string) {
     minute: '2-digit',
   }).format(startsAt);
   return `${date} · ${time}`;
+}
+
+function eventoDemo(
+  id: string,
+  liga: LigaDeportiva,
+  local: EventoDeportivo['local'],
+  visitante: EventoDeportivo['visitante'],
+  iniciaEn: string,
+): EventoDeportivo {
+  return {
+    id,
+    liga,
+    competicion: liga,
+    temporada: '2026',
+    iniciaEn,
+    estado: 'PROGRAMADO',
+    estadoDetalle: 'Programado',
+    local,
+    visitante,
+  };
+}
+
+export function eventosDemo(now = new Date()): EventoDeportivo[] {
+  const hoursFromNow = (hours: number) =>
+    new Date(now.getTime() + hours * 60 * 60 * 1000).toISOString();
+
+  return [
+    eventoDemo(
+      'demo-mlb-futuro',
+      'MLB',
+      { id: 'nyy', nombre: 'Yankees', codigo: 'NYY' },
+      { id: 'bos', nombre: 'Red Sox', codigo: 'BOS' },
+      hoursFromNow(8),
+    ),
+    eventoDemo(
+      'demo-nba-futuro',
+      'NBA',
+      { id: 'lal', nombre: 'Lakers', codigo: 'LAL' },
+      { id: 'den', nombre: 'Nuggets', codigo: 'DEN' },
+      hoursFromNow(26),
+    ),
+    eventoDemo(
+      'demo-nfl-futuro',
+      'NFL',
+      { id: 'kc', nombre: 'Chiefs', codigo: 'KC' },
+      { id: 'cin', nombre: 'Bengals', codigo: 'CIN' },
+      hoursFromNow(50),
+    ),
+    eventoDemo(
+      'demo-ucl-futuro',
+      'Champions',
+      { id: 'rma', nombre: 'Real Madrid', codigo: 'RMA' },
+      { id: 'bvb', nombre: 'Dortmund', codigo: 'BVB' },
+      hoursFromNow(32),
+    ),
+  ];
+}
+
+export function calendarioConAgenda(
+  snapshot: CalendarioDeportivo,
+  now = new Date(),
+): CalendarioDeportivo {
+  if (snapshot.eventos.length > 0) return snapshot;
+
+  return {
+    ...snapshot,
+    proveedor: 'demo',
+    eventos: eventosDemo(now),
+  };
+}
+
+export function eventoChallenge(
+  snapshot: CalendarioDeportivo,
+  now = Date.now(),
+): EventoDeportivo | undefined {
+  const upcoming = [...snapshot.eventos]
+    .filter(
+      (event) =>
+        event.estado === 'PROGRAMADO' && new Date(event.iniciaEn).getTime() >= now,
+    )
+    .sort((a, b) => a.iniciaEn.localeCompare(b.iniciaEn));
+
+  return upcoming[0];
+}
+
+export function challengeDesdeCalendario(
+  snapshot: CalendarioDeportivo,
+  premioPickCoins = 150,
+): ChallengeDelDia | null {
+  const event = eventoChallenge(snapshot);
+  if (!event) return null;
+
+  const color = acentos[event.liga];
+  return {
+    titulo: 'Pick Challenge del día',
+    pregunta: `¿Quién gana este duelo de ${event.liga}?`,
+    local: {
+      nombre: event.local.nombre,
+      iniciales: event.local.codigo,
+      acento: color.local,
+      logoUrl: event.local.logoUrl,
+    },
+    visitante: {
+      nombre: event.visitante.nombre,
+      iniciales: event.visitante.codigo,
+      acento: color.visitante,
+      logoUrl: event.visitante.logoUrl,
+    },
+    horario: horarioEvento(event, snapshot.zonaHoraria),
+    premioPickCoins,
+  };
 }
 
 export function eventosDestacados(snapshot: CalendarioDeportivo): EventoDestacado[] {

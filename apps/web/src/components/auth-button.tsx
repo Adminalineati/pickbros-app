@@ -74,14 +74,14 @@ export function AuthButton() {
     }
 
     const planClass =
-      localUser.suscripcion === 'subs2'
+      localUser.suscripcion === 'premium'
         ? 'border-primary-blue/50 bg-primary-blue/15 text-primary-blue'
         : 'border-primary-orange/50 bg-primary-orange/15 text-primary-orange';
 
     return (
       <div className="flex flex-wrap items-center gap-2">
         <span className={`rounded-full border px-3 py-1 text-xs font-bold uppercase ${planClass}`}>
-          {localUser.suscripcion}
+          {localUser.suscripcion === 'premium' ? 'Premium' : 'Free'}
         </span>
         <span className="hidden text-sm text-text-secondary sm:inline">
           {localUser.nombre}
