@@ -49,13 +49,14 @@ El build requiere `NEXT_PUBLIC_COGNITO_USER_POOL_ID`,
 
 ## Preview para el equipo
 
-La demo visual se publica en GitHub Pages al hacer push a `main`:
+Hay dos URLs distintas:
 
-https://Adminalineati.github.io/pickbros-app/
+| URL | Qué es | Se actualiza con |
+|---|---|---|
+| https://Adminalineati.github.io/pickbros-app/ | Demo visual (GitHub Pages) | push a `main` |
+| https://d2sw7ji6w903sd.cloudfront.net/ | Sitio oficial en AWS (dev) | push a `main` o workflow **Publicar en AWS** |
 
-Es el Dashboard y la PickStore con datos de ejemplo. No hace falta instalar nada.
-
-La primera vez hay que activar Pages en el repo: **Settings → Pages → Source: GitHub Actions**.
+La demo de GitHub Pages usa datos de ejemplo. CloudFront usa Cognito real para registro e inicio de sesión.
 
 Si el repo es privado y Pages no deja publicar, importar este mismo repo en [Vercel](https://vercel.com/new). Queda un link tipo `https://pickbros-app.vercel.app`.
 

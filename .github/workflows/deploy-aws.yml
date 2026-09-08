@@ -1,6 +1,8 @@
 name: Publicar en AWS
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       environment:
@@ -50,7 +52,9 @@ jobs:
       - run: pnpm test
 
   api:
-    if: inputs.component == 'all' || inputs.component == 'api'
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      (inputs.component == 'all' || inputs.component == 'api')
     needs: quality
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
@@ -103,10 +107,13 @@ jobs:
           wait-for-service-stability: true
 
   web:
-    if: inputs.component == 'all' || inputs.component == 'web'
+    if: >-
+      github.event_name == 'push' ||
+      inputs.component == 'all' ||
+      inputs.component == 'web'
     needs: quality
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    environment: ${{ github.event_name == 'push' && 'dev' || inputs.environment }}
     env:
       NEXT_PUBLIC_API_URL: ${{ vars.API_URL }}
       NEXT_PUBLIC_COGNITO_AUTHORITY: ${{ vars.COGNITO_AUTHORITY }}
