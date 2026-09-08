@@ -10,7 +10,11 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'media.api-sports.io',
+        hostname: 'highlightly.net',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.highlightly.net',
       },
     ],
   },

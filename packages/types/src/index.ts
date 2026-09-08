@@ -75,7 +75,7 @@ export interface EstadoFuenteDeportiva {
 
 export interface CalendarioDeportivo {
   version: 1;
-  proveedor: 'api-sports' | 'demo';
+  proveedor: 'highlightly' | 'api-sports' | 'demo';
   actualizadoEn: string;
   zonaHoraria: string;
   ventana: {

@@ -2,11 +2,18 @@
 
 ## Decisión aceptada
 
-**Proveedor seleccionado: API-Sports.** Decisión aceptada el 4 de septiembre de 2026 después de comparar API-Sports, TheSportsDB, ESPN no oficial, BALLDONTLIE y football-data.org.
+**Proveedor seleccionado: Highlightly All Sports API.** La migración se decidió
+el 7 de septiembre de 2026 después de que el nivel gratuito de API-Sports
+rechazara las temporadas actuales y limitara la cuenta a 2022–2024.
 
-API-Sports será la fuente principal para desarrollo y beta privada. Cubre MLB, NBA, NFL y Champions League, ofrece eventos, resultados, datos en vivo y URLs de logos, y permite comenzar con un nivel gratuito.
+Highlightly cubre MLB, NBA, NFL y Champions League con una sola llave. El plan
+Basic no requiere tarjeta, permite 100 solicitudes diarias e incluye
+calendarios, resultados, estados en vivo y URLs de logos.
 
-API-Sports no incluye automáticamente derechos comerciales de publicación. Antes de mostrar estos datos en un producto público se debe validar la licencia por escrito.
+Sus términos permiten almacenar y mostrar los datos en aplicaciones. Los logos
+y emblemas siguen siendo marcas de terceros: deben mostrarse sin modificaciones
+y PickBros debe validar los permisos necesarios antes de un lanzamiento
+comercial definitivo.
 
 Alternativas:
 
@@ -18,12 +25,16 @@ Alternativas:
 
 El frontend nunca consulta directamente al proveedor ni recibe su llave.
 
-Durante la publicación de costo mínimo, GitHub Actions consulta API-Sports cada
-seis horas, normaliza los calendarios y publica únicamente
-`data/sports.json` en el bucket privado servido por CloudFront. Son cuatro
-consultas por ejecución (MLB, NBA, NFL y Champions), aproximadamente 16 al día.
-La web muestra todos los horarios en `America/Mexico_City` y conserva el
-snapshot anterior de una liga si esa fuente falla.
+Durante la publicación de costo mínimo, GitHub Actions consulta Highlightly cada
+seis horas, normaliza los calendarios y publica únicamente `data/sports.json`
+en el bucket privado servido por CloudFront.
+
+La ventana contiene dos días anteriores, el día actual y catorce días futuros.
+Cada ejecución actualiza el día actual y cuatro fechas rotativas para las cuatro
+ligas. Esto consume 20 solicitudes por ejecución y 80 solicitudes al día, por
+debajo de las 100 incluidas. La web muestra los horarios en
+`America/Mexico_City` y conserva los datos anteriores de una fecha si esa
+consulta falla.
 
 Cuando se active el API de NestJS y Postgres, el mismo contrato normalizado se
 persistirá en las tablas deportivas y el frontend cambiará al endpoint interno.
@@ -43,7 +54,8 @@ Cuando exista un plan con cuota suficiente para producción:
 
 Las tablas usan `(provider_id, external_id)` como clave única. El payload original se conserva temporalmente en JSONB para diagnosticar cambios del proveedor.
 
-La interfaz `ProveedorDeportivo` permite reemplazar API-Sports por otro proveedor sin cambiar controladores ni tablas.
+La interfaz `ProveedorDeportivo` permite reemplazar Highlightly por otro
+proveedor sin cambiar controladores ni tablas.
 
 ## Secretos
 
@@ -51,7 +63,7 @@ En la fase estática, la llave se configura como secreto del environment `dev`
 del repositorio de GitHub:
 
 ```text
-API_SPORTS_KEY
+HIGHLIGHTLY_API_KEY
 ```
 
 Nunca debe existir en variables `NEXT_PUBLIC_*`, archivos versionados ni en el

@@ -9,9 +9,29 @@
   },
   "eventos": [],
   "fuentes": [
-    { "liga": "MLB", "ok": false, "eventos": 0, "error": "Pendiente de sincronizar API-Sports" },
-    { "liga": "NBA", "ok": false, "eventos": 0, "error": "Pendiente de sincronizar API-Sports" },
-    { "liga": "NFL", "ok": false, "eventos": 0, "error": "Pendiente de sincronizar API-Sports" },
-    { "liga": "Champions", "ok": false, "eventos": 0, "error": "Pendiente de sincronizar API-Sports" }
+    {
+      "liga": "MLB",
+      "ok": false,
+      "eventos": 0,
+      "error": "Pendiente de sincronizar Highlightly"
+    },
+    {
+      "liga": "NBA",
+      "ok": false,
+      "eventos": 0,
+      "error": "Pendiente de sincronizar Highlightly"
+    },
+    {
+      "liga": "NFL",
+      "ok": false,
+      "eventos": 0,
+      "error": "Pendiente de sincronizar Highlightly"
+    },
+    {
+      "liga": "Champions",
+      "ok": false,
+      "eventos": 0,
+      "error": "Pendiente de sincronizar Highlightly"
+    }
   ]
 }

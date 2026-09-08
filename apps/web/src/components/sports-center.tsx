@@ -174,7 +174,9 @@ export function SportsCenter() {
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary-orange">
-              API-Sports
+              {data?.proveedor === 'highlightly'
+                ? 'Datos deportivos · Highlightly'
+                : 'Centro deportivo'}
             </p>
             <h1 className="mt-1 font-display text-4xl uppercase text-text-primary md:text-5xl">
               Calendario y resultados

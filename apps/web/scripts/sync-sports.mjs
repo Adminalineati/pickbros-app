@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { sincronizarDeportes } from './api-sports.mjs';
+import { sincronizarDeportes } from './highlightly.mjs';
 
 function argumento(name, fallback) {
   const index = process.argv.indexOf(name);
@@ -20,8 +20,8 @@ const previousPath = resolve(argumento('--previous', output));
 const nowValue = argumento('--now');
 
 const snapshot = await sincronizarDeportes({
-  key: process.env.API_SPORTS_KEY,
-  zonaHoraria: process.env.API_SPORTS_TIMEZONE ?? 'America/Mexico_City',
+  key: process.env.HIGHLIGHTLY_API_KEY,
+  zonaHoraria: process.env.SPORTS_TIMEZONE ?? 'America/Mexico_City',
   now: nowValue ? new Date(nowValue) : new Date(),
   anterior: await leerAnterior(previousPath),
 });
@@ -30,5 +30,5 @@ await writeFile(output, `${JSON.stringify(snapshot, null, 2)}\n`, 'utf8');
 
 const ok = snapshot.fuentes.filter((source) => source.ok).length;
 console.log(
-  `API-Sports: ${snapshot.eventos.length} eventos, ${ok}/${snapshot.fuentes.length} fuentes correctas.`,
+  `Highlightly: ${snapshot.eventos.length} eventos, ${ok}/${snapshot.fuentes.length} fuentes correctas.`,
 );
