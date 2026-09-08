@@ -12,14 +12,7 @@ export type Subscription = 'free' | 'premium';
 export type SubscriptionPlan = 'FREE' | 'PREMIUM';
 
 function parseSubscription(value: unknown): Subscription {
-  const normalized = String(value ?? '').toUpperCase();
-  return normalized === 'PREMIUM' || normalized === 'SUBS2'
-    ? 'premium'
-    : 'free';
-}
-
-function cognitoSubscription(plan: SubscriptionPlan) {
-  return plan === 'PREMIUM' ? 'SUBS2' : 'SUBS1';
+  return String(value ?? '').toUpperCase() === 'PREMIUM' ? 'premium' : 'free';
 }
 
 export interface SessionUser {
@@ -172,7 +165,7 @@ export async function register(input: {
       new CognitoUserAttribute({ Name: 'custom:state', Value: input.estado.trim() }),
       new CognitoUserAttribute({
         Name: 'custom:subscription',
-        Value: cognitoSubscription(input.suscripcion),
+        Value: input.suscripcion,
       }),
     ];
 

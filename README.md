@@ -22,8 +22,8 @@ pnpm dev
 - API: http://localhost:3001/api/v1/health
 
 El registro solicita nombre, apellido, correo, contraseña segura, fecha de
-nacimiento, teléfono celular, país, estado y una de dos suscripciones (`subs1` o
-`subs2`). La cuenta se activa con un código de verificación. Al iniciar sesión,
+nacimiento, teléfono celular, país, estado y una membresía (`FREE` o `PREMIUM`).
+La cuenta se activa con un código de verificación. Al iniciar sesión,
 el Dashboard muestra el nombre y una insignia de color con la suscripción elegida.
 
 La contraseña nunca se guarda directamente: el API almacena únicamente su hash.
@@ -39,7 +39,7 @@ La web publicada usa Amazon Cognito directamente, sin RDS ni API encendida:
 
 - Cognito guarda los usuarios y valida el correo con un código.
 - El inicio de sesión usa SRP y mantiene tokens JWT renovables durante 30 días.
-- El Dashboard muestra el nombre y la suscripción `subs1` o `subs2`.
+- El Dashboard muestra el nombre y la membresía `FREE` o `PREMIUM`.
 - La recuperación de contraseña se envía por correo. SMS permanece desactivado
   durante la fase de costo mínimo.
 
