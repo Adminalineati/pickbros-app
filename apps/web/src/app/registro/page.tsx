@@ -187,6 +187,7 @@ export default function RegisterPage() {
           />
         </Field>
         <Field
+          className="md:col-span-2"
           label="Fecha de nacimiento"
           hint={BIRTHDATE_RANGE_MESSAGE}
           error={errors.fechaNacimiento?.message}
@@ -244,6 +245,7 @@ export default function RegisterPage() {
           </select>
         </Field>
         <Field
+          className="md:col-span-2"
           label="Teléfono celular"
           hint={
             ubicacionCompleta
@@ -252,16 +254,13 @@ export default function RegisterPage() {
           }
           error={errors.telefonoLocal?.message}
         >
-          <div className="flex gap-2">
-            <span
-              aria-hidden="true"
-              className="auth-input flex w-[4.5rem] shrink-0 items-center justify-center bg-surface text-text-secondary"
-            >
+          <div className="auth-input-group">
+            <span aria-hidden="true" className="auth-input-prefix">
               {codigoTelefono}
             </span>
             <input
               autoComplete="tel-national"
-              className="auth-input min-w-0 flex-1"
+              className="auth-input"
               disabled={!ubicacionCompleta}
               inputMode="numeric"
               placeholder="5512345678"
