@@ -17,6 +17,15 @@
   },
   "packageManager": "pnpm@10.15.0",
   "pnpm": {
+    "overrides": {
+      "deepmerge-ts": ">=8.0.2",
+      "fast-uri": ">=3.1.6",
+      "js-yaml": ">=4.3.2",
+      "multer": ">=2.3.0",
+      "postcss": ">=8.5.23",
+      "qs": ">=6.16.0",
+      "sharp": ">=0.35.4"
+    },
     "onlyBuiltDependencies": ["esbuild", "sharp", "unrs-resolver", "@prisma/client", "@prisma/engines", "prisma"]
   },
   "devDependencies": {
