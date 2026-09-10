@@ -6,11 +6,22 @@ import {
   sincronizarDeportes,
 } from './highlightly.mjs';
 
-test('reparte la ventana en cuatro bloques dentro de 80 consultas diarias', () => {
+test('modo rapido consulta solo el dia actual para caber en 96 solicitudes diarias', () => {
+  const run = fechasParaEjecucion({
+    now: new Date('2026-09-07T18:17:00.000Z'),
+    zonaHoraria: 'UTC',
+  });
+
+  assert.deepEqual(run.fechas, ['2026-09-07']);
+  assert.equal(24 * run.fechas.length * 4, 96);
+});
+
+test('modo completo reparte la ventana en cuatro bloques dentro de 80 consultas diarias', () => {
   const runs = [0, 6, 12, 18].map((hour) =>
     fechasParaEjecucion({
       now: new Date(`2026-09-07T${String(hour).padStart(2, '0')}:17:00.000Z`),
       zonaHoraria: 'UTC',
+      modo: 'completo',
     }),
   );
 
@@ -53,6 +64,37 @@ test('normaliza un partido de Champions en vivo', () => {
   assert.equal(event.local.codigo, 'RM');
   assert.equal(event.local.logoUrl, 'https://highlightly.net/images/real.png');
   assert.equal(event.competicion, 'UEFA Champions League');
+});
+
+test('marca como finalizado un partido NFL con report Final aunque description diga In progress', () => {
+  const event = normalizarEvento(
+    {
+      id: 55,
+      league: 'NFL',
+      season: 2026,
+      date: '2026-09-10T00:00:00.000Z',
+      state: {
+        description: 'In progress',
+        report: 'Final',
+        score: { current: '21 - 7', homeTeam: 21, awayTeam: 7 },
+      },
+      homeTeam: {
+        id: 1,
+        displayName: 'Seattle Seahawks',
+        abbreviation: 'SEA',
+      },
+      awayTeam: {
+        id: 2,
+        displayName: 'New England Patriots',
+        abbreviation: 'NE',
+      },
+    },
+    'NFL',
+  );
+
+  assert.equal(event.estado, 'FINALIZADO');
+  assert.equal(event.marcadorLocal, 21);
+  assert.equal(event.marcadorVisitante, 7);
 });
 
 test('suma los periodos y normaliza un resultado NBA', () => {
@@ -100,6 +142,7 @@ test('conserva la fecha anterior si una consulta de Highlightly falla', async ()
     key: 'test',
     now: new Date('2026-09-07T06:17:00.000Z'),
     zonaHoraria: 'UTC',
+    modo: 'completo',
     anterior: { eventos: [previous] },
     fetchImpl: async (url) => {
       const isFailedDate =

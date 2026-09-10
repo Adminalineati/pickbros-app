@@ -26,15 +26,16 @@ Alternativas:
 El frontend nunca consulta directamente al proveedor ni recibe su llave.
 
 Durante la publicación de costo mínimo, GitHub Actions consulta Highlightly cada
-seis horas, normaliza los calendarios y publica únicamente `data/sports.json`
-en el bucket privado servido por CloudFront.
+hora en modo rápido, normaliza los calendarios y publica únicamente
+`data/sports.json` en el bucket privado servido por CloudFront.
 
 La ventana contiene dos días anteriores, el día actual y catorce días futuros.
-Cada ejecución actualiza el día actual y cuatro fechas rotativas para las cuatro
-ligas. Esto consume 20 solicitudes por ejecución y 80 solicitudes al día, por
-debajo de las 100 incluidas. La web muestra los horarios en
-`America/Mexico_City` y conserva los datos anteriores de una fecha si esa
-consulta falla.
+Cada ejecución horaria actualiza solo el día actual para las cuatro ligas
+(4 solicitudes por corrida, ~96 al día, dentro de las 100 incluidas). Los
+eventos de otras fechas se conservan del snapshot anterior hasta una
+sincronización completa manual (`workflow_dispatch` con `--completo`, 20
+solicitudes). La web muestra los horarios en `America/Mexico_City` y conserva
+los datos anteriores de una fecha si esa consulta falla.
 
 Cuando se active el API de NestJS y Postgres, el mismo contrato normalizado se
 persistirá en las tablas deportivas y el frontend cambiará al endpoint interno.
@@ -42,8 +43,8 @@ persistirá en las tablas deportivas y el frontend cambiará al endpoint interno
 Durante la demo con el nivel gratuito:
 
 1. equipos, ligas y logos una vez al día;
-2. próximos eventos cada seis horas;
-3. resultados cuatro a seis veces al día y bajo actualización manual controlada.
+2. juegos del día cada hora;
+3. ventana completa bajo sincronización manual controlada.
 
 Cuando exista un plan con cuota suficiente para producción:
 

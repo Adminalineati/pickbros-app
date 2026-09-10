@@ -40,11 +40,22 @@ export function fechasParaEjecucion({
   zonaHoraria = 'America/Mexico_City',
   diasPasados = 2,
   diasFuturos = 14,
+  modo = 'rapido',
 } = {}) {
   const hoy = fechaEnZona(now, zonaHoraria);
   const ventana = Array.from({ length: diasPasados + diasFuturos + 1 }, (_, index) =>
     sumarDias(hoy, index - diasPasados),
   );
+
+  if (modo === 'rapido') {
+    return {
+      hoy,
+      desde: ventana[0],
+      hasta: ventana.at(-1),
+      fechas: [hoy],
+    };
+  }
+
   const otrasFechas = ventana.filter((fecha) => fecha !== hoy);
   const bloque = Math.floor(now.getUTCHours() / 6) % 4;
 
@@ -129,18 +140,19 @@ function marcadoresDe(raw) {
 
 function estadoDe(raw) {
   const detalle = String(raw?.state?.description ?? 'Programado');
-  const state = detalle.toLowerCase();
+  const report = String(raw?.state?.report ?? raw?.state?.score?.report ?? '');
+  const combined = `${detalle} ${report}`.toLowerCase();
 
-  if (/(finished|final|ended|after penalties|after extra|after over)/.test(state)) {
-    return { estado: 'FINALIZADO', detalle };
+  if (/(finished|final|ended|after penalties|after extra|after over)/.test(combined)) {
+    return { estado: 'FINALIZADO', detalle: report || detalle };
   }
-  if (/(postponed|suspended|rain delay|interrupted)/.test(state)) {
+  if (/(postponed|suspended|rain delay|interrupted)/.test(combined)) {
     return { estado: 'POSPUESTO', detalle };
   }
-  if (/(cancelled|canceled|abandoned)/.test(state)) {
+  if (/(cancelled|canceled|abandoned)/.test(combined)) {
     return { estado: 'CANCELADO', detalle };
   }
-  if (/(not started|scheduled|to be announced|unknown|programado)/.test(state)) {
+  if (/(not started|scheduled|to be announced|unknown|programado)/.test(combined)) {
     return { estado: 'PROGRAMADO', detalle };
   }
   return { estado: 'EN_VIVO', detalle };
@@ -221,6 +233,7 @@ export async function sincronizarDeportes({
   zonaHoraria = 'America/Mexico_City',
   diasPasados = 2,
   diasFuturos = 14,
+  modo = 'rapido',
   anterior,
   fetchImpl = fetch,
 }) {
@@ -231,6 +244,7 @@ export async function sincronizarDeportes({
     zonaHoraria,
     diasPasados,
     diasFuturos,
+    modo,
   });
   const eventos = new Map(
     (anterior?.eventos ?? [])

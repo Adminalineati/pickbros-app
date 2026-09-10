@@ -5,6 +5,7 @@
   --color-background: var(--background);
   --color-surface: var(--surface);
   --color-surface-elevated: var(--surface-elevated);
+  --color-surface-card: var(--surface-card);
   --color-border: var(--border);
   --color-primary-orange: var(--primary-orange);
   --color-primary-blue: var(--primary-blue);

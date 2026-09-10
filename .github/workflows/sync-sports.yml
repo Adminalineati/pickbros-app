@@ -2,7 +2,8 @@ name: Actualizar calendarios deportivos
 
 on:
   schedule:
-    - cron: '17 0,6,12,18 * * *'
+    # Cada hora: modo rápido (4 ligas × hoy = 4 solicitudes, ~96/día dentro del límite de 100).
+    - cron: '17 * * * *'
   workflow_dispatch:
 
 permissions:

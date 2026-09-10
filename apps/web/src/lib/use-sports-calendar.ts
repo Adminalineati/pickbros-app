@@ -1,35 +1,57 @@
 'use client';
 
 import type { CalendarioDeportivo } from '@pickbros/types';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { cargarCalendarioDeportivo } from '@/lib/sports-data';
+
+const REFRESH_INTERVAL_MS = 2 * 60 * 1000;
 
 export function useSportsCalendar() {
   const [data, setData] = useState<CalendarioDeportivo | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const load = useCallback(async (signal?: AbortSignal, silent = false) => {
+    if (!silent) setLoading(true);
+    else setRefreshing(true);
+
+    try {
+      const calendar = await cargarCalendarioDeportivo(signal);
+      if (signal?.aborted) return;
+      setData(calendar);
+      setError('');
+    } catch (cause) {
+      if (signal?.aborted) return;
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : 'No pudimos cargar los eventos deportivos.',
+      );
+    } finally {
+      if (signal?.aborted) return;
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
-    cargarCalendarioDeportivo(controller.signal)
-      .then((calendar) => {
-        setData(calendar);
-        setError('');
-      })
-      .catch((cause) => {
-        if (controller.signal.aborted) return;
-        setError(
-          cause instanceof Error
-            ? cause.message
-            : 'No pudimos cargar los eventos deportivos.',
-        );
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
-      });
+    void load(controller.signal);
 
-    return () => controller.abort();
-  }, []);
+    const interval = window.setInterval(() => {
+      void load(undefined, true);
+    }, REFRESH_INTERVAL_MS);
 
-  return { data, error, loading };
+    return () => {
+      controller.abort();
+      window.clearInterval(interval);
+    };
+  }, [load]);
+
+  const refresh = useCallback(() => {
+    void load(undefined, true);
+  }, [load]);
+
+  return { data, error, loading, refreshing, refresh };
 }

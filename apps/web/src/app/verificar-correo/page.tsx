@@ -64,6 +64,7 @@ export default function VerifyEmailPage() {
     <AuthShell
       title="Verifica tu correo"
       subtitle="Ingresa el código de seis dígitos que enviamos a tu correo."
+      wide
     >
       {codigoDemo ? (
         <div className="mb-4 rounded-xl border border-primary-orange/40 bg-primary-orange/10 p-3 text-sm">
@@ -108,7 +109,7 @@ export default function VerifyEmailPage() {
       </form>
 
       <button
-        className="mt-4 w-full text-sm font-semibold text-primary-blue"
+        className="mt-4 w-full text-sm font-semibold text-primary-orange"
         disabled={!correo}
         onClick={() => void resend()}
         type="button"

@@ -146,7 +146,7 @@ function EventRow({ event, timezone }: { event: EventoDeportivo; timezone: strin
 }
 
 export function SportsCenter() {
-  const { data, error, loading } = useSportsCalendar();
+  const { data, error, loading, refreshing, refresh } = useSportsCalendar();
   const [league, setLeague] = useState<'TODOS' | LigaDeportiva>('TODOS');
   const [status, setStatus] = useState<StatusFilter>('TODOS');
 
@@ -169,8 +169,8 @@ export function SportsCenter() {
 
   return (
     <div className="space-y-6">
-      <header className="relative overflow-hidden rounded-2xl border border-primary-blue/25 bg-surface p-5 md:p-7">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-primary-orange via-primary-blue to-transparent" />
+      <header className="relative overflow-hidden rounded-2xl border border-white/8 bg-surface-card p-5 md:p-7">
+        <div className="absolute inset-x-0 top-0 h-px bg-primary-orange/70" />
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary-orange">
@@ -187,17 +187,24 @@ export function SportsCenter() {
             </p>
           </div>
           {data ? (
-            <div className="text-xs text-text-secondary">
-              <p className="flex items-center gap-2">
-                <RefreshCw aria-hidden="true" size={13} />
-                Actualizado{' '}
-                {new Intl.DateTimeFormat('es-MX', {
-                  dateStyle: 'medium',
-                  timeStyle: 'short',
-                  timeZone: data.zonaHoraria,
-                }).format(new Date(data.actualizadoEn))}
-              </p>
-            </div>
+            <button
+              className="flex items-center gap-2 text-xs text-text-secondary transition hover:text-primary-orange disabled:opacity-50"
+              disabled={refreshing}
+              onClick={refresh}
+              type="button"
+            >
+              <RefreshCw
+                aria-hidden="true"
+                className={refreshing ? 'animate-spin' : undefined}
+                size={13}
+              />
+              Actualizado{' '}
+              {new Intl.DateTimeFormat('es-MX', {
+                dateStyle: 'medium',
+                timeStyle: 'short',
+                timeZone: data.zonaHoraria,
+              }).format(new Date(data.actualizadoEn))}
+            </button>
           ) : null}
         </div>
       </header>
@@ -224,7 +231,7 @@ export function SportsCenter() {
             <button
               className={cn(
                 'shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-text-secondary',
-                status === item.id && 'bg-primary-blue/15 text-primary-blue',
+                status === item.id && 'bg-primary-orange/15 text-primary-orange',
               )}
               key={item.id}
               onClick={() => setStatus(item.id)}

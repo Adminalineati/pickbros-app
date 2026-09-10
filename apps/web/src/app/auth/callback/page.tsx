@@ -22,7 +22,7 @@ export default function AuthCallbackPage() {
       subtitle={error || 'Estamos validando tu cuenta de forma segura…'}
     >
       <div className="h-1.5 overflow-hidden rounded-full bg-background">
-        <div className="h-full w-2/3 animate-pulse rounded-full bg-gradient-to-r from-primary-orange to-primary-blue" />
+        <div className="h-full w-2/3 animate-pulse rounded-full bg-primary-orange" />
       </div>
     </AuthShell>
   );

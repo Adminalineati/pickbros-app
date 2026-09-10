@@ -46,7 +46,6 @@ const schema = z
         'Usa 12 caracteres con mayúscula, minúscula, número y símbolo',
       ),
     confirmacion: z.string(),
-    suscripcion: z.enum(['FREE', 'PREMIUM']),
   })
   .refine((data) => data.password === data.confirmacion, {
     message: 'Las contraseñas no coinciden',
@@ -85,12 +84,10 @@ export default function RegisterPage() {
       pais: 'MX',
       estado: '',
       telefonoLocal: '',
-      suscripcion: 'FREE',
     },
   });
   const pais = watch('pais');
   const estado = watch('estado');
-  const suscripcion = watch('suscripcion');
   const fechaNacimiento = watch('fechaNacimiento');
   const estados = estadosDe(pais);
   const codigoTelefono = codigoTelefonoDe(pais);
@@ -127,7 +124,7 @@ export default function RegisterPage() {
         telefono,
         pais: result.data.pais,
         estado: result.data.estado,
-        suscripcion: result.data.suscripcion,
+        suscripcion: 'FREE',
       });
       sessionStorage.setItem(
         'pickbros-pending-verification',
@@ -157,7 +154,7 @@ export default function RegisterPage() {
   return (
     <AuthShell
       title="Crea tu cuenta"
-      subtitle="Completa tus datos, elige un plan y verifica tu correo."
+      subtitle="Completa tus datos y verifica tu correo."
       wide
     >
       <form className="grid gap-4 md:grid-cols-2" onSubmit={submit}>
@@ -277,33 +274,6 @@ export default function RegisterPage() {
           </div>
         </Field>
 
-        <fieldset className="md:col-span-2">
-          <legend className="mb-2 text-sm text-text-secondary">
-            Tipo de membresía
-          </legend>
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              ['FREE', 'Free', 'Acceso básico a picks y comunidad'],
-              ['PREMIUM', 'Premium', 'Análisis, retos y recompensas extra'],
-            ].map(([value, title, detail]) => (
-              <label
-                className="cursor-pointer rounded-xl border border-border bg-background p-3 transition has-[:checked]:border-primary-orange has-[:checked]:bg-primary-orange/10"
-                key={value}
-              >
-                <input
-                  checked={suscripcion === value}
-                  className="sr-only"
-                  type="radio"
-                  value={value}
-                  {...register('suscripcion')}
-                />
-                <span className="block font-semibold">{title}</span>
-                <span className="text-xs text-text-secondary">{detail}</span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
-
         <Field label="Contraseña" error={errors.password?.message}>
           <div className="relative">
             <input
@@ -359,7 +329,7 @@ export default function RegisterPage() {
 
       <p className="mt-5 text-center text-sm text-text-secondary">
         ¿Ya tienes cuenta?{' '}
-        <Link className="font-semibold text-primary-blue" href="/login">
+        <Link className="font-semibold text-primary-orange" href="/login">
           Inicia sesión
         </Link>
       </p>

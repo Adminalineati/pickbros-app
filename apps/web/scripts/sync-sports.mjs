@@ -18,11 +18,13 @@ async function leerAnterior(path) {
 const output = resolve(argumento('--output', 'public/data/sports.json'));
 const previousPath = resolve(argumento('--previous', output));
 const nowValue = argumento('--now');
+const modo = process.argv.includes('--completo') ? 'completo' : 'rapido';
 
 const snapshot = await sincronizarDeportes({
   key: process.env.HIGHLIGHTLY_API_KEY,
   zonaHoraria: process.env.SPORTS_TIMEZONE ?? 'America/Mexico_City',
   now: nowValue ? new Date(nowValue) : new Date(),
+  modo,
   anterior: await leerAnterior(previousPath),
 });
 

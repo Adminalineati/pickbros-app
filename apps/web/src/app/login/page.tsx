@@ -145,7 +145,7 @@ export default function LoginPage() {
 
       <p className="mt-5 text-center text-sm text-text-secondary">
         ¿Todavía no tienes cuenta?{' '}
-        <Link className="font-semibold text-primary-blue" href="/registro">
+        <Link className="font-semibold text-primary-orange" href="/registro">
           Regístrate
         </Link>
       </p>

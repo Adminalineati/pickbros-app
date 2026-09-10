@@ -36,8 +36,8 @@ export function Header({
     : saludo;
 
   return (
-    <header className="relative flex flex-col gap-4 overflow-hidden rounded-2xl border border-primary-blue/20 bg-gradient-to-r from-surface via-background/85 to-surface p-4 shadow-[0_0_30px_color-mix(in_srgb,var(--primary-blue)_7%,transparent)] lg:flex-row lg:items-center lg:justify-between">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-primary-orange via-primary-orange/70 to-primary-blue" />
+    <header className="relative flex flex-col gap-4 overflow-hidden rounded-2xl border border-white/8 bg-surface-card p-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-primary-orange/70" />
       <div className="flex items-center gap-4">
         <div>
           <p className="font-display text-2xl uppercase tracking-wide text-text-primary md:text-3xl">
