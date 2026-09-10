@@ -142,8 +142,9 @@ export function eventoChallenge(
 export function challengeDesdeCalendario(
   snapshot: CalendarioDeportivo,
   premioPickCoins = 150,
+  now = Date.now(),
 ): ChallengeDelDia | null {
-  const event = eventoChallenge(snapshot);
+  const event = eventoChallenge(snapshot, now);
   if (!event) return null;
 
   const color = acentos[event.liga];

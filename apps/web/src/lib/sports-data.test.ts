@@ -29,7 +29,7 @@ test('el pick principal toma el evento futuro más próximo, no un template', ()
   const now = new Date('2026-09-08T16:00:00.000Z');
   const snapshot = calendarioConAgenda(vacio, now);
   const event = eventoChallenge(snapshot, now.getTime());
-  const challenge = challengeDesdeCalendario(snapshot);
+  const challenge = challengeDesdeCalendario(snapshot, 150, now.getTime());
 
   assert.equal(event?.id, 'demo-mlb-futuro');
   assert.equal(event?.local.nombre, 'Yankees');
