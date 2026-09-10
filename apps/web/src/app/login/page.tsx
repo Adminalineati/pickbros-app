@@ -1,11 +1,11 @@
 'use client';
 
 import { Eye, EyeOff } from 'lucide-react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { AuthLink } from '@/components/auth-link';
 import { AuthShell } from '@/components/auth-shell';
 import { Button } from '@/components/ui/button';
 import { authConfigured, authManager } from '@/lib/auth';
@@ -116,24 +116,24 @@ export default function LoginPage() {
               )}
             </button>
           </div>
-          <Link
+          <AuthLink
             className="mt-2 block text-right text-xs font-semibold text-primary-orange"
             href="/recuperar-password"
           >
             ¿Olvidaste tu contraseña?
-          </Link>
+          </AuthLink>
         </label>
 
         {error ? (
           <div className="rounded-xl border border-danger/40 bg-danger/10 p-3 text-sm text-danger">
             <p>{error}</p>
             {verificationRequired ? (
-              <Link
+              <AuthLink
                 className="mt-2 inline-block font-semibold underline"
                 href="/verificar-correo"
               >
                 Verificar mi correo
-              </Link>
+              </AuthLink>
             ) : null}
           </div>
         ) : null}
@@ -145,9 +145,9 @@ export default function LoginPage() {
 
       <p className="mt-5 text-center text-sm text-text-secondary">
         ¿Todavía no tienes cuenta?{' '}
-        <Link className="font-semibold text-primary-orange" href="/registro">
+        <AuthLink className="font-semibold text-primary-orange" href="/registro">
           Regístrate
-        </Link>
+        </AuthLink>
       </p>
     </AuthShell>
   );

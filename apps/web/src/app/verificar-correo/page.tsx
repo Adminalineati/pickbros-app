@@ -1,8 +1,8 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type FormEvent } from 'react';
+import { AuthLink } from '@/components/auth-link';
 import { AuthShell } from '@/components/auth-shell';
 import { Button } from '@/components/ui/button';
 import { resendVerification, verifyEmail } from '@/lib/local-auth';
@@ -117,9 +117,9 @@ export default function VerifyEmailPage() {
         Reenviar código
       </button>
       <p className="mt-5 text-center text-sm text-text-secondary">
-        <Link className="font-semibold text-primary-orange" href="/login">
+        <AuthLink className="font-semibold text-primary-orange" href="/login">
           Volver al inicio de sesión
-        </Link>
+        </AuthLink>
       </p>
     </AuthShell>
   );

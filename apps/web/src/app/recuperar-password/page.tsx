@@ -1,8 +1,8 @@
 'use client';
 
 import { Eye, EyeOff } from 'lucide-react';
-import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
+import { AuthLink } from '@/components/auth-link';
 import { AuthShell } from '@/components/auth-shell';
 import { Button } from '@/components/ui/button';
 import {
@@ -74,12 +74,12 @@ export default function RecoverPasswordPage() {
         title="Contraseña actualizada"
         subtitle="Tu nueva contraseña ya está lista."
       >
-        <Link
+        <AuthLink
           className="flex h-12 items-center justify-center rounded-xl bg-primary-orange font-semibold text-white"
           href="/login"
         >
           Iniciar sesión
-        </Link>
+        </AuthLink>
       </AuthShell>
     );
   }
@@ -182,9 +182,9 @@ export default function RecoverPasswordPage() {
       )}
 
       <p className="mt-5 text-center text-sm text-text-secondary">
-        <Link className="font-semibold text-primary-orange" href="/login">
+        <AuthLink className="font-semibold text-primary-orange" href="/login">
           Volver al inicio de sesión
-        </Link>
+        </AuthLink>
       </p>
     </AuthShell>
   );

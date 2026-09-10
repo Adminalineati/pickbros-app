@@ -20,7 +20,7 @@ export function AuthShell({
       >
         <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-primary-orange" />
         <Link href="/" className="mb-8 flex justify-center">
-          <BrandMark variant="wordmark" />
+          <BrandMark className="h-16 w-auto md:h-[4.75rem]" variant="wordmark" />
         </Link>
         <h1 className="font-display text-3xl uppercase tracking-wide">{title}</h1>
         <p className="mt-2 text-sm text-text-secondary">{subtitle}</p>

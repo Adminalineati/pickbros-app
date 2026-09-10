@@ -1,12 +1,12 @@
 'use client';
 
 import { Eye, EyeOff } from 'lucide-react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { AuthShell } from '@/components/auth-shell';
+import { AuthLink } from '@/components/auth-link';
 import { Button } from '@/components/ui/button';
 import { authConfigured, authManager } from '@/lib/auth';
 import {
@@ -308,12 +308,12 @@ export default function RegisterPage() {
           <div className="rounded-xl border border-danger/40 bg-danger/10 p-3 text-sm text-danger md:col-span-2">
             <p>{apiError}</p>
             {activationRequired ? (
-              <Link
+              <AuthLink
                 className="mt-2 inline-block font-semibold underline"
                 href="/verificar-correo"
               >
                 Activar mi cuenta
-              </Link>
+              </AuthLink>
             ) : null}
           </div>
         ) : null}
@@ -329,9 +329,9 @@ export default function RegisterPage() {
 
       <p className="mt-5 text-center text-sm text-text-secondary">
         ¿Ya tienes cuenta?{' '}
-        <Link className="font-semibold text-primary-orange" href="/login">
+        <AuthLink className="font-semibold text-primary-orange" href="/login">
           Inicia sesión
-        </Link>
+        </AuthLink>
       </p>
     </AuthShell>
   );
