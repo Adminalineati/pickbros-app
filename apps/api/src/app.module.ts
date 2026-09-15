@@ -6,8 +6,11 @@ import { CognitoAuthGuard } from './modules/auth/cognito-auth.guard';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { DatabaseModule } from './modules/database/database.module';
 import { HealthModule } from './modules/health/health.module';
+import { OddsModule } from './modules/odds/odds.module';
+import { PicksModule } from './modules/picks/picks.module';
 import { SportsModule } from './modules/sports/sports.module';
 import { StoreModule } from './modules/store/store.module';
+import { WalletModule } from './modules/wallet/wallet.module';
 
 @Module({
   imports: [
@@ -18,7 +21,10 @@ import { StoreModule } from './modules/store/store.module';
     AuthModule,
     HealthModule,
     DatabaseModule,
+    WalletModule,
     DashboardModule,
+    OddsModule,
+    PicksModule,
     SportsModule,
     StoreModule,
   ],

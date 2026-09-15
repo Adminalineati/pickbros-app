@@ -17,10 +17,10 @@ import {
 } from './auth.dto';
 import { LocalAuthService } from './local-auth.service';
 import {
-  LocalJwtGuard,
   type LocalSessionUser,
   SESSION_COOKIE,
 } from './local-jwt.guard';
+import { ProductAuthGuard } from './product-auth.guard';
 import { Public } from './public.decorator';
 
 @Controller('auth')
@@ -92,7 +92,7 @@ export class AuthController {
 
   @Get('me')
   @Public()
-  @UseGuards(LocalJwtGuard)
+  @UseGuards(ProductAuthGuard)
   profile(@Req() request: Request & { user: LocalSessionUser }) {
     return this.auth.profile(request.user.sub);
   }

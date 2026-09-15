@@ -58,6 +58,9 @@ Las tablas usan `(provider_id, external_id)` como clave única. El payload origi
 La interfaz `ProveedorDeportivo` permite reemplazar Highlightly por otro
 proveedor sin cambiar controladores ni tablas.
 
+Las cuotas de apuestas no salen de Highlightly. Van por The Odds API en Nest
+(`docs/the-odds-api-integration.md`) y se asocian a los IDs Highlightly.
+
 ## Secretos
 
 En la fase estática, la llave se configura como secreto del environment `dev`
@@ -73,3 +76,8 @@ JSON publicado. Cuando ECS se habilite, la llave migrará a AWS Secrets Manager.
 También deben existir las variables de GitHub `FRONTEND_BUCKET` y
 `CLOUDFRONT_DISTRIBUTION_ID`, y el secreto
 `AWS_APPLICATION_DEPLOY_ROLE_ARN`.
+
+Para cuotas (The Odds API), agrega el secret `THE_ODDS_API_KEY` en el
+environment `dev` de GitHub. Terraform crea el contenedor en Secrets Manager;
+GitHub Actions lo sincroniza con los workflows **Probar The Odds API** y
+**Sincronizar secret The Odds API**. Ver `docs/the-odds-api-integration.md`.

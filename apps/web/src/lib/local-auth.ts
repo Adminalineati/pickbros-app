@@ -21,6 +21,11 @@ export interface SessionUser {
   apellido: string;
   correo: string;
   suscripcion: Subscription;
+  pickCoins?: number;
+  pickets?: number;
+  nivel?: number;
+  rachaDias?: number;
+  rango?: string;
 }
 
 interface LoginResponse {
@@ -43,6 +48,45 @@ export class ApiError extends Error {
 
 function apiUrl() {
   return process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1';
+}
+
+export function apiBaseUrl() {
+  return apiUrl().replace(/\/$/, '');
+}
+
+async function tokenCognito(): Promise<string | undefined> {
+  if (!cognitoUserPoolConfigured()) return undefined;
+  const user = cognitoPool().getCurrentUser();
+  if (!user) return undefined;
+
+  return new Promise((resolve) => {
+    user.getSession(
+      (error: Error | null, session: CognitoUserSession | null) => {
+        if (error || !session?.isValid()) {
+          resolve(undefined);
+          return;
+        }
+        resolve(session.getIdToken().getJwtToken());
+      },
+    );
+  });
+}
+
+/** Cliente único para endpoints privados del producto. */
+export async function authenticatedApiFetch(
+  path: string,
+  init: RequestInit = {},
+) {
+  const token = await tokenCognito();
+  return fetch(`${apiBaseUrl()}${path}`, {
+    ...init,
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...init.headers,
+    },
+  });
 }
 
 export function cognitoUserPoolConfigured() {
@@ -420,6 +464,12 @@ export function currentUser(): SessionUser | null {
     void logout();
     return null;
   }
+}
+
+export function patchSessionUser(patch: Partial<SessionUser>) {
+  const current = currentUser();
+  if (!current) return;
+  saveUser({ ...current, ...patch });
 }
 
 export function sessionEventName() {

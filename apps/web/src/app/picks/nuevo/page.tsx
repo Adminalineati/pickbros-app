@@ -1,10 +1,13 @@
-import { Proximamente } from '@/components/proximamente';
+import { Suspense } from 'react';
+import { AppShell } from '@/components/app-shell';
+import { PickForm } from '@/components/pick-form';
 
 export default function NuevoPickPage() {
   return (
-    <Proximamente
-      titulo="Nuevo pick"
-      descripcion="El atajo de móvil para lanzar un pick. Por ahora te deja en esta pantalla de avance."
-    />
+    <AppShell>
+      <Suspense fallback={<p className="text-text-secondary">Cargando evento…</p>}>
+        <PickForm />
+      </Suspense>
+    </AppShell>
   );
 }

@@ -34,6 +34,21 @@ enum EventStatus {
 enum PickSelection {
   HOME
   AWAY
+  DRAW
+  OVER
+  UNDER
+}
+
+enum PickMarket {
+  MONEYLINE
+  EXACT_SCORE
+  TOTAL
+}
+
+enum PickMarketPosition {
+  FAVORITO
+  UNDERDOG
+  EVEN
 }
 
 enum PickResult {
@@ -279,17 +294,27 @@ model DailyChallenge {
 }
 
 model Pick {
-  id          String          @id @default(cuid())
-  userId      String          @map("user_id")
-  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  eventId     String          @map("event_id")
-  event       SportEvent      @relation(fields: [eventId], references: [id])
-  challengeId String?         @map("challenge_id")
-  challenge   DailyChallenge? @relation(fields: [challengeId], references: [id])
-  selection   PickSelection
-  result      PickResult      @default(PENDING)
-  points      Int             @default(0)
-  createdAt   DateTime        @default(now()) @map("created_at")
+  id                 String              @id @default(cuid())
+  userId             String              @map("user_id")
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventId            String              @map("event_id")
+  event              SportEvent          @relation(fields: [eventId], references: [id])
+  challengeId        String?             @map("challenge_id")
+  challenge          DailyChallenge?     @relation(fields: [challengeId], references: [id])
+  market             PickMarket          @default(MONEYLINE)
+  selection          PickSelection
+  stakePickCoins     Int                 @map("stake_pick_coins")
+  homeScore          Int?                @map("home_score")
+  awayScore          Int?                @map("away_score")
+  totalLine          Float?              @map("total_line")
+  oddsAmerican       Int?                @map("odds_american")
+  impliedProbability Float?              @map("implied_probability")
+  marketPosition     PickMarketPosition? @map("market_position")
+  oddsSnapshot       Json?               @map("odds_snapshot")
+  lockedAt           DateTime            @map("locked_at")
+  result             PickResult          @default(PENDING)
+  points             Int                 @default(0)
+  createdAt          DateTime            @default(now()) @map("created_at")
 
   @@unique([userId, eventId])
   @@index([userId, createdAt])

@@ -2,15 +2,20 @@
 
 import type {
   EstadoEventoDeportivo,
+  EventoCuotas,
   EventoDeportivo,
   LigaDeportiva,
 } from '@pickbros/types';
 import { CalendarDays, Clock3, Radio, RefreshCw } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useMemo, useState } from 'react';
+import { EventOdds } from '@/components/odds-markets';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useSportsCalendar } from '@/lib/use-sports-calendar';
+import { useSportsOdds } from '@/lib/use-sports-odds';
 import { cn } from '@/lib/utils';
 
 const leagueFilters: Array<'TODOS' | LigaDeportiva> = [
@@ -99,7 +104,17 @@ function Team({
   );
 }
 
-function EventRow({ event, timezone }: { event: EventoDeportivo; timezone: string }) {
+function EventRow({
+  event,
+  timezone,
+  odds,
+  loadingOdds,
+}: {
+  event: EventoDeportivo;
+  timezone: string;
+  odds?: EventoCuotas;
+  loadingOdds?: boolean;
+}) {
   const hasScore =
     event.marcadorLocal !== undefined && event.marcadorVisitante !== undefined;
 
@@ -141,12 +156,31 @@ function EventRow({ event, timezone }: { event: EventoDeportivo; timezone: strin
           {[event.fase, event.sede].filter(Boolean).join(' · ')}
         </p>
       )}
+      <div className="md:col-span-4">
+        {loadingOdds && !odds ? (
+          <p className="text-[11px] text-text-secondary">Cargando cuotas…</p>
+        ) : (
+          <EventOdds
+            awayName={event.visitante.nombre}
+            homeName={event.local.nombre}
+            odds={odds}
+          />
+        )}
+      </div>
+      {event.estado === 'PROGRAMADO' ? (
+        <Button asChild className="md:col-span-4" size="sm">
+          <Link href={`/picks/nuevo?eventId=${encodeURIComponent(event.id)}`}>
+            Hacer pick
+          </Link>
+        </Button>
+      ) : null}
     </Card>
   );
 }
 
 export function SportsCenter() {
   const { data, error, loading, refreshing, refresh } = useSportsCalendar();
+  const { odds, loading: loadingOdds } = useSportsOdds(data?.eventos);
   const [league, setLeague] = useState<'TODOS' | LigaDeportiva>('TODOS');
   const [status, setStatus] = useState<StatusFilter>('TODOS');
 
@@ -306,6 +340,8 @@ export function SportsCenter() {
               <EventRow
                 event={event}
                 key={event.id}
+                loadingOdds={loadingOdds}
+                odds={odds[event.id]}
                 timezone={data?.zonaHoraria ?? 'UTC'}
               />
             ))}

@@ -1,0 +1,54 @@
+name: Probar The Odds API
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: dev
+    steps:
+      - name: Validar secret configurado
+        env:
+          THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
+        run: |
+          if [ -z "${THE_ODDS_API_KEY}" ]; then
+            echo "Falta THE_ODDS_API_KEY en el environment dev de GitHub."
+            exit 1
+          fi
+          echo "Secret presente en GitHub."
+
+      - name: Probar GET /v4/sports (sin costo de cuota)
+        env:
+          THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
+        run: |
+          set -euo pipefail
+          curl -sS -D /tmp/odds-headers.txt -o /tmp/odds-sports.json \
+            "https://api.the-odds-api.com/v4/sports?apiKey=${THE_ODDS_API_KEY}"
+
+          STATUS=$(head -1 /tmp/odds-headers.txt)
+          echo "HTTP: ${STATUS}"
+
+          grep -i '^x-requests-' /tmp/odds-headers.txt || true
+
+          if ! echo "${STATUS}" | grep -q ' 200 '; then
+            echo "The Odds API no respondió 200. Revisa la key o el plan."
+            exit 1
+          fi
+
+          COUNT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('/tmp/odds-sports.json','utf8')).length)")
+          echo "Deportes recibidos: ${COUNT}"
+
+          if [ "${COUNT}" -lt 1 ]; then
+            echo "Respuesta vacía."
+            exit 1
+          fi
+
+          echo "OK: la key funciona desde GitHub Actions."

@@ -11,6 +11,7 @@ async function leerJson<T>(ruta: string, schema: { parse: (data: unknown) => T }
 
   try {
     const respuesta = await fetch(`${API_URL}${ruta}`, {
+      credentials: 'include',
       signal: AbortSignal.timeout(2500),
     });
 

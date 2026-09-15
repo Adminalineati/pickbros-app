@@ -2,6 +2,7 @@
 
 import type { ChallengeDelDia } from '@pickbros/types';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { formatearNumero } from '@/lib/format';
@@ -75,7 +76,18 @@ export function DailyChallenge({ challenge }: { challenge: ChallengeDelDia }) {
               {formatearNumero(visible.premioPickCoins)} PickCoins
             </span>
           </p>
-          <Button aria-label="Hacer mi pick del día">Hacer mi pick</Button>
+          <Button asChild>
+            <Link
+              aria-label="Hacer mi pick del día"
+              href={
+                visible.eventId
+                  ? `/picks/nuevo?eventId=${encodeURIComponent(visible.eventId)}`
+                  : '/deportes'
+              }
+            >
+              Hacer mi pick
+            </Link>
+          </Button>
         </div>
       </div>
     </Card>

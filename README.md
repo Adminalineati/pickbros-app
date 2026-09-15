@@ -82,9 +82,20 @@ Tablas y criterio de queries: `docs/datos.md`.
 ## Qué hay dentro
 
 - `apps/web` — Dashboard, PickStore y plantilla de navegación
-- `apps/api` — salud, dashboard, tienda; Prisma listo, mocks si no hay DB
+- `apps/api` — autenticación, deportes, cuotas, economía y pronósticos
 - `packages/types` — contratos compartidos
 - `packages/ui` — tokens de color
 - `packages/config` — TypeScript común
+
+## Flujo de pronósticos (RF-04)
+
+Al verificar la cuenta se acreditan 30 PickCoins. Desde `/deportes` se puede
+elegir ganador, empate, marcador exacto u Over/Under. El API valida el horario y
+la membresía, crea el evento de Highlightly en Postgres si hace falta, registra
+el pick y descuenta el saldo en una sola transacción. `/picks` muestra el
+historial del usuario autenticado.
+
+La fuente de verdad para usuarios, saldos y picks es Postgres. Los mocks solo
+mantienen contenido visual de secciones que pertenecen a requisitos posteriores.
 
 Los archivos `.env.local` / `.env` no se suben al repositorio. Copia los `.env.example`.

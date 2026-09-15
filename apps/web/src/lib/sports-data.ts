@@ -151,6 +151,7 @@ export function challengeDesdeCalendario(
   return {
     titulo: 'Pick Challenge del día',
     pregunta: `¿Quién gana este duelo de ${event.liga}?`,
+    eventId: event.id,
     local: {
       nombre: event.local.nombre,
       iniciales: event.local.codigo,

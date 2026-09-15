@@ -1,10 +1,10 @@
-import { Proximamente } from '@/components/proximamente';
+import { AppShell } from '@/components/app-shell';
+import { PickHistory } from '@/components/pick-history';
 
 export default function PicksPage() {
   return (
-    <Proximamente
-      titulo="Picks"
-      descripcion="Aquí vas a armar y seguir tus pronósticos. Todavía estamos en la plantilla visual."
-    />
+    <AppShell>
+      <PickHistory />
+    </AppShell>
   );
 }

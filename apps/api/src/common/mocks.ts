@@ -2,16 +2,16 @@ import type { DashboardRespuesta, TiendaRespuesta } from '@pickbros/types';
 
 export const dashboardMock: DashboardRespuesta = {
   usuario: {
-    nombre: 'Jairo',
-    saludo: '¿Qué onda, Jairo! 👋',
+    nombre: 'PickBro',
+    saludo: '¿Qué onda!',
   },
   rango: {
-    nombre: 'Pick Master',
-    nivel: 23,
+    nombre: 'Rookie',
+    nivel: 1,
   },
-  pickCoins: 2450,
-  pickets: 12,
-  rachaDias: 7,
+  pickCoins: 0,
+  pickets: 0,
+  rachaDias: 0,
   challengeDelDia: {
     titulo: 'Pick Challenge del día',
     pregunta: '¿Quién gana este duelo de MLB?',
@@ -58,12 +58,7 @@ export const dashboardMock: DashboardRespuesta = {
       horario: '2:00 PM',
     },
   ],
-  rankingSemanal: [
-    { puesto: 1, alias: 'Fer007', puntos: 1840 },
-    { puesto: 2, alias: 'SportsFanMX', puntos: 1712 },
-    { puesto: 3, alias: 'GreenPicks', puntos: 1654 },
-    { puesto: 4, alias: 'JairoMX', puntos: 1580, esUsuarioActual: true },
-  ],
+  rankingSemanal: [],
   misiones: [
     {
       id: 'm1',

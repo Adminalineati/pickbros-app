@@ -1,6 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 import { AccountStatus, SubscriptionPlan } from '@prisma/client';
 import { hash } from 'bcryptjs';
+import { createHmac } from 'node:crypto';
 import { PrismaService } from '../database/prisma.service';
 import { LocalAuthService } from './local-auth.service';
 
@@ -138,6 +139,51 @@ describe('LocalAuthService', () => {
     expect(user.failedLoginAttempts).toBe(3);
     expect(user.lockedUntil).toBeInstanceOf(Date);
   });
+
+  it('acredita PickCoins al verificar el correo', async () => {
+    const user = {
+      id: 'user-1',
+      email: 'ana@example.com',
+      displayName: 'Ana Demo',
+      firstName: 'Ana',
+      lastName: 'Demo',
+      subscriptionPlan: SubscriptionPlan.FREE,
+      verificationHash: createHmac('sha256', 'test-secret')
+        .update('123456')
+        .digest('hex'),
+      verificationEnds: new Date(Date.now() + 60_000),
+    };
+    const wallet = {
+      ensureActivationGrant: jest.fn(async () => ({ pickCoins: 30 })),
+    };
+    const prisma = {
+      listo: true,
+      user: {
+        findUnique: jest.fn(async () => user),
+        findUniqueOrThrow: jest.fn(async () => ({
+          ...user,
+          wallet: { pickCoins: 30, pickets: 0 },
+          rank: null,
+          level: 1,
+          streakDays: 0,
+        })),
+        update: jest.fn(async ({ data }: { data: Record<string, unknown> }) => ({
+          ...user,
+          ...data,
+        })),
+      },
+    };
+    const jwt = { signAsync: jest.fn(async () => 'jwt') };
+    const service = new LocalAuthService(prisma as never, jwt as never, wallet as never);
+
+    const result = await service.verifyEmail({
+      correo: user.email,
+      codigo: '123456',
+    });
+
+    expect(wallet.ensureActivationGrant).toHaveBeenCalledWith('user-1');
+    expect(result.usuario.pickCoins).toBe(30);
+  });
 });
 
 function createService(user: Record<string, unknown>) {
@@ -149,5 +195,8 @@ function createService(user: Record<string, unknown>) {
     signAsync: jest.fn(async () => 'jwt'),
   };
 
-  return new LocalAuthService(prisma, jwt as never);
+  const wallet = {
+    ensureActivationGrant: jest.fn(async () => ({ pickCoins: 30, pickets: 0 })),
+  };
+  return new LocalAuthService(prisma, jwt as never, wallet as never);
 }

@@ -14,6 +14,7 @@ import { AccountStatus } from '@prisma/client';
 import { compare, hash } from 'bcryptjs';
 import { createHmac, randomInt, randomUUID } from 'node:crypto';
 import { PrismaService } from '../database/prisma.service';
+import { WalletService } from '../wallet/wallet.service';
 import {
   EmailDto,
   LoginDto,
@@ -36,6 +37,7 @@ export class LocalAuthService {
     private readonly prisma: PrismaService,
     @Inject(LOCAL_JWT)
     private readonly jwt: JwtService,
+    private readonly wallet: WalletService,
   ) {}
 
   async register(input: RegisterDto) {
@@ -171,7 +173,7 @@ export class LocalAuthService {
 
     return {
       accessToken: await this.jwt.signAsync(payload),
-      usuario: this.publicUser(user),
+      usuario: await this.sessionProfile(user.id),
     };
   }
 
@@ -190,7 +192,7 @@ export class LocalAuthService {
       throw new BadRequestException('El código es inválido o ya venció');
     }
 
-    const verified = await this.prisma.user.update({
+    await this.prisma.user.update({
       where: { id: user.id },
       data: {
         accountStatus: AccountStatus.ACTIVE,
@@ -199,10 +201,11 @@ export class LocalAuthService {
         verificationHash: null,
       },
     });
+    await this.wallet.ensureActivationGrant(user.id);
 
     return {
       mensaje: 'Correo verificado correctamente',
-      usuario: this.publicUser(verified),
+      usuario: await this.sessionProfile(user.id),
     };
   }
 
@@ -294,15 +297,23 @@ export class LocalAuthService {
 
   async profile(userId: string) {
     this.assertEnabled();
+    return this.sessionProfile(userId);
+  }
+
+  private async sessionProfile(userId: string) {
+    await this.wallet.ensureActivationGrant(userId);
     const user = await this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
-      include: { wallet: true },
+      include: { wallet: true, rank: true },
     });
 
     return {
       ...this.publicUser(user),
       pickCoins: user.wallet?.pickCoins ?? 0,
       pickets: user.wallet?.pickets ?? 0,
+      nivel: user.level,
+      rachaDias: user.streakDays,
+      rango: user.rank?.name ?? 'Rookie',
     };
   }
 

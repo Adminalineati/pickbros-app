@@ -70,6 +70,26 @@ jobs:
       - id: ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Sincronizar THE_ODDS_API_KEY en Secrets Manager
+        if: inputs.api_action == 'deploy'
+        env:
+          THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${THE_ODDS_API_KEY}" ]; then
+            echo "Falta THE_ODDS_API_KEY en el environment de GitHub."
+            exit 1
+          fi
+          SECRET_ID="pickbros-${{ inputs.environment }}/the-odds-api-key"
+          if ! aws secretsmanager describe-secret --secret-id "${SECRET_ID}" >/dev/null 2>&1; then
+            echo "No existe ${SECRET_ID}. Aplica Terraform en pickbros-infra primero."
+            exit 1
+          fi
+          aws secretsmanager put-secret-value \
+            --secret-id "${SECRET_ID}" \
+            --secret-string "${THE_ODDS_API_KEY}"
+          echo "Secret de odds actualizado para ${SECRET_ID}"
+
       - name: Construir y publicar imagen
         id: image
         env:

@@ -34,6 +34,7 @@ test('el pick principal toma el evento futuro más próximo, no un template', ()
   assert.equal(event?.id, 'demo-mlb-futuro');
   assert.equal(event?.local.nombre, 'Yankees');
   assert.equal(challenge?.local.nombre, 'Yankees');
+  assert.equal(challenge?.eventId, 'demo-mlb-futuro');
   assert.notEqual(challenge?.local.nombre, 'Dodgers');
 });
 

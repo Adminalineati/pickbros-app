@@ -18,6 +18,7 @@ export interface EquipoChallenge {
 }
 
 export interface ChallengeDelDia {
+  eventId?: string;
   titulo: string;
   pregunta: string;
   local: EquipoChallenge;
@@ -140,4 +141,139 @@ export interface TiendaRespuesta {
 export interface SaludRespuesta {
   status: 'ok';
   service: 'pickbros-api';
+}
+
+export type PosicionMercado = 'favorito' | 'underdog' | 'even';
+
+export interface LineaSpread {
+  line: number;
+  odds: number;
+}
+
+export interface MercadoSpread {
+  home?: LineaSpread;
+  away?: LineaSpread;
+}
+
+export interface MercadoTotal {
+  line: number;
+  over?: number;
+  under?: number;
+}
+
+export interface MercadoMoneyline {
+  home?: number;
+  away?: number;
+  draw?: number;
+}
+
+export interface EquipoCuota {
+  id?: string;
+  nombre: string;
+  moneyline?: number;
+  impliedProbability?: number;
+  marketPosition?: PosicionMercado;
+}
+
+export interface CuotaCasaApuesta {
+  key: string;
+  title: string;
+  lastUpdated: string;
+  moneyline?: MercadoMoneyline;
+  spread?: MercadoSpread;
+  total?: MercadoTotal;
+}
+
+export interface PosicionCuotaMercado {
+  team: string;
+  odds: number;
+  impliedProbability: number;
+}
+
+export interface EventoCuotas {
+  eventId: string;
+  providerEventId?: string;
+  sport: LigaDeportiva;
+  matched: boolean;
+  available: boolean;
+  homeTeam: EquipoCuota;
+  awayTeam: EquipoCuota;
+  commenceTime: string;
+  markets: {
+    moneyline?: MercadoMoneyline;
+    spread?: MercadoSpread;
+    total?: MercadoTotal;
+  };
+  favorite?: PosicionCuotaMercado;
+  underdog?: PosicionCuotaMercado;
+  bookmakers?: CuotaCasaApuesta[];
+  lastUpdated: string;
+  source: 'the-odds-api';
+}
+
+export interface CuotasLigaRespuesta {
+  liga: LigaDeportiva;
+  sportKey: string;
+  available: boolean;
+  reason?: string;
+  events: EventoCuotas[];
+  unmatched: number;
+  cacheHit: boolean;
+  lastUpdated: string;
+}
+
+export interface EventoParaAsociarCuotas {
+  id: string;
+  liga: LigaDeportiva;
+  localNombre: string;
+  visitanteNombre: string;
+  iniciaEn: string;
+}
+
+export interface CuotasAsociadasRespuesta {
+  available: boolean;
+  reason?: string;
+  cacheHit: boolean;
+  eventos: Record<string, EventoCuotas>;
+  unmatched: string[];
+  lastUpdated: string;
+}
+
+export type MercadoPick = 'MONEYLINE' | 'EXACT_SCORE' | 'TOTAL';
+export type SeleccionPick = 'HOME' | 'AWAY' | 'DRAW' | 'OVER' | 'UNDER';
+export type ResultadoPick = 'PENDING' | 'WIN' | 'LOSS' | 'VOID';
+
+export interface Pronostico {
+  id: string;
+  eventId: string;
+  liga: LigaDeportiva;
+  local: string;
+  visitante: string;
+  iniciaEn: string;
+  mercado: MercadoPick;
+  seleccion: SeleccionPick;
+  stakePickCoins: number;
+  homeScore?: number | null;
+  awayScore?: number | null;
+  totalLine?: number | null;
+  oddsAmerican?: number | null;
+  impliedProbability?: number | null;
+  marketPosition?: PosicionMercado | null;
+  resultado: ResultadoPick;
+  puntos: number;
+  createdAt: string;
+  pickCoins?: number;
+}
+
+export interface PerfilSesion {
+  id: string;
+  nombre: string;
+  apellido: string;
+  correo: string;
+  suscripcion: 'free' | 'premium';
+  pickCoins: number;
+  pickets: number;
+  nivel: number;
+  rachaDias: number;
+  rango: string;
 }

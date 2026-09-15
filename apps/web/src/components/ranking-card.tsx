@@ -8,6 +8,11 @@ export function RankingCard({ ranking }: { ranking: PosicionRanking[] }) {
     <section aria-labelledby="ranking-semanal">
       <SectionHeader id="ranking-semanal" kicker="Competencia" title="Top PickBros de la semana" />
       <Card className="space-y-2 border-primary-blue/30">
+        {ranking.length === 0 ? (
+          <p className="px-3 py-6 text-center text-sm text-text-secondary">
+            Aún no hay PickBros en el ranking. Las cuentas reales aparecen aquí.
+          </p>
+        ) : null}
         {ranking.map((fila) => (
           <div
             key={fila.alias}

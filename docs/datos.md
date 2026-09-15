@@ -9,6 +9,8 @@ Hoy el dashboard y la tienda siguen en mocks. Cuando exista `DATABASE_URL`, Pris
 - Lecturas y escrituras del producto: Prisma en los servicios de Nest.
 - Ranking semanal: no se calcula en cada request. Un job (más adelante) escribe `weekly_rankings` y el dashboard lee ese snapshot.
 - Wallet: `wallets` tiene el saldo; `wallet_ledger` guarda cada movimiento. Las dos cosas se tocan en la misma transacción, con `version` para no pisar un update.
+- Activación: al verificar el correo se acreditan 30 PickCoins una sola vez. El ledger `ACCOUNT_ACTIVATION` hace idempotente el beneficio.
+- Pronóstico: `POST /api/v1/picks` crea el evento si aún solo existe en Highlightly, registra el pick y descuenta PickCoins en una sola transacción.
 
 No vamos a GraphQL ni a CQRS en esta etapa. Si un listado se pone pesado (historial de ledger, picks de un user), se pagina por `created_at` + id.
 
@@ -38,7 +40,7 @@ products 1──* redemptions
 | `wallet_ledger` | Historial; no se borra |
 | `sport_events` | Duelos. Nombres en texto por ahora, sin logos de liga |
 | `daily_challenges` | Un challenge por día |
-| `picks` | Un pick por user+evento |
+| `picks` | Un pick por user+evento; mercado, selección, costo y snapshot de cuotas |
 | `missions` / `user_missions` | Progreso diario |
 | `weekly_rankings` | Top de la semana ya cerrado |
 | `products` / `redemptions` | PickStore; el canje real viene después |

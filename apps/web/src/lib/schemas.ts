@@ -26,6 +26,7 @@ export const dashboardSchema = z.object({
     visitante: equipoSchema,
     horario: z.string(),
     premioPickCoins: z.number(),
+    eventId: z.string().optional(),
   }),
   eventosDestacados: z.array(
     z.object({

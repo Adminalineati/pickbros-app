@@ -1,9 +1,10 @@
-import type { EventoDestacado } from '@pickbros/types';
+import type { EventoCuotas, EventoDestacado } from '@pickbros/types';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { OddsBadge } from '@/components/odds-badge';
 
 const ligaColor: Record<EventoDestacado['liga'], string> = {
   MLB: 'border-primary-blue/40 text-primary-blue',
@@ -47,7 +48,13 @@ function TeamBadge({
   );
 }
 
-export function EventCard({ evento }: { evento: EventoDestacado }) {
+export function EventCard({
+  evento,
+  odds,
+}: {
+  evento: EventoDestacado;
+  odds?: EventoCuotas;
+}) {
   const hasScore =
     evento.marcadorLocal !== undefined && evento.marcadorVisitante !== undefined;
 
@@ -85,12 +92,30 @@ export function EventCard({ evento }: { evento: EventoDestacado }) {
         </div>
       </div>
       <p className="text-sm text-text-secondary">{evento.horario}</p>
+      {odds?.available ? (
+        <div className="flex items-center justify-between gap-2 text-[11px] text-text-secondary">
+          <span className="flex items-center gap-1">
+            {evento.local}
+            <OddsBadge odds={odds.homeTeam.moneyline} />
+          </span>
+          <span className="flex items-center gap-1">
+            {evento.visitante}
+            <OddsBadge odds={odds.awayTeam.moneyline} />
+          </span>
+        </div>
+      ) : null}
       <Button asChild variant="outline" size="sm" className="mt-auto w-full">
         <Link
-          href="/deportes"
-          aria-label={`Ver calendario de ${evento.local} contra ${evento.visitante}`}
+          href={
+            evento.estado === 'PROGRAMADO'
+              ? `/picks/nuevo?eventId=${encodeURIComponent(evento.id)}`
+              : '/deportes'
+          }
+          aria-label={`${
+            evento.estado === 'PROGRAMADO' ? 'Hacer pick en' : 'Ver calendario de'
+          } ${evento.local} contra ${evento.visitante}`}
         >
-          Ver calendario
+          {evento.estado === 'PROGRAMADO' ? 'Hacer pick' : 'Ver calendario'}
         </Link>
       </Button>
     </Card>

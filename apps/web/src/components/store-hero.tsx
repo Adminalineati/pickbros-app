@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatearNumero } from '@/lib/format';
+import { useSessionProfile } from '@/lib/use-session-profile';
 
 const pestanas = [
   { id: 'fan-shop', etiqueta: 'Fan Shop' },
@@ -28,6 +29,14 @@ function filtrar(productos: ProductoTienda[], categoria: string, busqueda: strin
 export function StoreHero({ data }: { data: TiendaRespuesta }) {
   const { register, watch } = useForm({ defaultValues: { busqueda: '' } });
   const busqueda = watch('busqueda');
+  const stats = useSessionProfile({
+    pickCoins: data.pickCoins,
+    pickets: data.pickets,
+    rachaDias: data.rachaDias,
+    nivel: data.rango.nivel,
+    rango: data.rango.nombre,
+    saludo: data.usuario.saludo,
+  });
 
   return (
     <div className="space-y-6">
@@ -43,20 +52,20 @@ export function StoreHero({ data }: { data: TiendaRespuesta }) {
         <div className="flex gap-2 overflow-x-auto" aria-label="Saldo disponible">
           <StatsCard
             etiqueta="Pickets disponibles"
-            valor={formatearNumero(data.pickets)}
+            valor={formatearNumero(stats.pickets)}
             icono={Ticket}
             acento="blue"
           />
           <StatsCard
             etiqueta="PickCoins"
-            valor={formatearNumero(data.pickCoins)}
+            valor={formatearNumero(stats.pickCoins)}
             icono={Coins}
             acento="orange"
           />
-          <StatsCard etiqueta="Nivel" valor={String(data.rango.nivel)} icono={Trophy} acento="blue" />
+          <StatsCard etiqueta="Nivel" valor={String(stats.nivel)} icono={Trophy} acento="blue" />
           <StatsCard
             etiqueta="Racha"
-            valor={`${data.rachaDias} días`}
+            valor={`${stats.rachaDias} días`}
             icono={Flame}
             acento="success"
           />
