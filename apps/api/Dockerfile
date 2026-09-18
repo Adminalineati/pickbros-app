@@ -26,10 +26,15 @@ RUN corepack enable
 
 COPY --from=build /app /app
 
+RUN chmod +x apps/api/docker-entrypoint.sh
+
+ENV RUN_MIGRATIONS=true
+
 USER node
 EXPOSE 3001
 
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:3001/api/v1/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
 
-CMD ["sh", "-c", "pnpm --filter api prisma:migrate && node apps/api/dist/main.js"]
+ENTRYPOINT ["/app/apps/api/docker-entrypoint.sh"]
+CMD ["node", "apps/api/dist/main.js"]
