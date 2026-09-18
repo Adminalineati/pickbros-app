@@ -97,9 +97,18 @@ jobs:
           REPOSITORY: ${{ vars.ECR_REPOSITORY }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
+          set -euo pipefail
           IMAGE="${REGISTRY}/${REPOSITORY}:${IMAGE_TAG}"
-          docker build -f apps/api/Dockerfile -t "${IMAGE}" .
-          docker push "${IMAGE}"
+
+          if aws ecr describe-images \
+            --repository-name "${REPOSITORY}" \
+            --image-ids "imageTag=${IMAGE_TAG}" >/dev/null 2>&1; then
+            echo "La imagen ${IMAGE_TAG} ya existe en ECR (tags inmutables). Se omite el push."
+          else
+            docker build -f apps/api/Dockerfile -t "${IMAGE}" .
+            docker push "${IMAGE}"
+          fi
+
           echo "uri=${IMAGE}" >> "$GITHUB_OUTPUT"
 
       - name: Descargar task definition
