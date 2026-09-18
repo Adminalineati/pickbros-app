@@ -108,10 +108,17 @@ jobs:
           if aws ecr describe-images \
             --repository-name "${REPOSITORY}" \
             --image-ids "imageTag=${IMAGE_TAG}" >/dev/null 2>&1; then
-            echo "La imagen ${IMAGE_TAG} ya existe en ECR (tags inmutables). Se omite el push."
+            echo "La imagen ${IMAGE_TAG} ya existe en ECR (tags inmutables). Se omite build y push."
           else
             docker build -f apps/api/Dockerfile -t "${IMAGE}" .
-            docker push "${IMAGE}"
+            if ! docker push "${IMAGE}" 2>push.err; then
+              if grep -qi 'immutable\|tag invalid\|already exists' push.err; then
+                echo "La imagen ${IMAGE_TAG} ya existe en ECR. Se continua con la imagen publicada."
+              else
+                cat push.err
+                exit 1
+              fi
+            fi
           fi
 
           echo "uri=${IMAGE}" >> "$GITHUB_OUTPUT"
