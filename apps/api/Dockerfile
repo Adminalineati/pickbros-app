@@ -22,6 +22,7 @@ FROM node:20-alpine AS runtime
 ENV NODE_ENV=production
 ENV PORT=3001
 WORKDIR /app
+RUN corepack enable
 
 COPY --from=build /app /app
 
