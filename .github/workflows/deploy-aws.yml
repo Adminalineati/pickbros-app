@@ -81,8 +81,13 @@ jobs:
             exit 1
           fi
           SECRET_ID="pickbros-${{ inputs.environment }}/the-odds-api-key"
-          if ! aws secretsmanager describe-secret --secret-id "${SECRET_ID}" >/dev/null 2>&1; then
-            echo "No existe ${SECRET_ID}. Aplica Terraform en pickbros-infra primero."
+          if ! DESCRIBE_ERR="$(aws secretsmanager describe-secret --secret-id "${SECRET_ID}" 2>&1)"; then
+            echo "${DESCRIBE_ERR}"
+            if echo "${DESCRIBE_ERR}" | grep -qi 'AccessDenied\|not authorized'; then
+              echo "El rol de deploy no puede leer Secrets Manager. Aplica bootstrap en pickbros-infra (IAM del rol application-deploy)."
+            else
+              echo "No existe ${SECRET_ID}. Aplica Terraform en pickbros-infra/environments/dev primero."
+            fi
             exit 1
           fi
           aws secretsmanager put-secret-value \
